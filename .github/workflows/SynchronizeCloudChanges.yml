@@ -1,0 +1,25 @@
+name: Synchronize cloud changes
+
+on:
+  workflow_call:
+    secrets:
+      cloud-repository-url:
+        required: true
+
+jobs:
+  Synchronize:
+    name: Synchronize
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+      - uses: AxendoNL/sync-changes-from-cloud-action@master
+        with:
+          cloud-repository-url: ${{secrets.cloud-repository-url}}
+          from-dir: ../cloud-repository
+          to-dir: ./
+  Cleanup:
+    if: ${{ always() }}
+    needs: Synchronize
+    runs-on: self-hosted
+    steps:
+      - uses: AxendoNL/sync-cleanup-action@master
