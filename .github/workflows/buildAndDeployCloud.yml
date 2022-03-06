@@ -3,22 +3,25 @@ name: Build and deploy changes Umbraco V9 - Cloud
 on:
   workflow_call:
     inputs:
-        front-end-directory:
-          required: true
-          type: string
-        organization-name:
-          required: true
-          type: string
-        project-name:
-          required: true
-          type: string
-        build-configuration:
-          required: true
-          default: 'release'
-          type: string
-        csproj-path:
-          required: true
-          type: string
+      front-end-directory:
+        required: true
+        type: string
+      organization-name:
+        required: true
+        type: string
+      project-name:
+        required: true
+        type: string
+      build-configuration:
+        required: true
+        default: 'release'
+        type: string
+      csproj-path:
+        required: true
+        type: string
+    secrets:
+      cloud-repository-url:
+        required: true
 
 jobs:
   Checkout-source:
@@ -60,7 +63,7 @@ jobs:
     steps:
     - uses: AxendoNL/sync-changes-to-cloud-action@master
       with:
-        cloud-repository-url: ${{secrets.CLOUD_REPOSITORY_URL}}
+        cloud-repository-url: ${{secrets.cloud-repository-url}}
         from-dir: ./
         to-dir: ../cloud-repository
 
