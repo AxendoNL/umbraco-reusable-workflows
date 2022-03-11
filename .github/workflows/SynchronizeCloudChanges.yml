@@ -12,7 +12,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
-      - uses: AxendoNL/sync-changes-from-cloud-action@master
+      - uses: AxendoNL/sync-changes-from-cloud-action@umbraco-v9
         with:
           cloud-repository-url: ${{secrets.cloud-repository-url}}
           from-dir: ../cloud-repository

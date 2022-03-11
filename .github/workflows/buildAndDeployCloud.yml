@@ -36,7 +36,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: build the frontend
-        uses: AxendoNL/build-frontend-action@master
+        uses: AxendoNL/build-frontend-action@umbraco-v9
         with:
           frontend-dir: ${{ inputs.front-end-directory }}
 
@@ -47,7 +47,7 @@ jobs:
     runs-on: self-hosted
     steps:
     - name: Setup .NET
-      uses: AxendoNL/dotnet-build-action@master
+      uses: AxendoNL/dotnet-build-action@umbraco-v9
       with:
         organization-name: ${{ inputs.organization-name }}
         project-name: ${{ inputs.project-name }}
@@ -61,7 +61,7 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - uses: AxendoNL/sync-changes-to-cloud-action@master
+    - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v9
       with:
         cloud-repository-url: ${{secrets.cloud-repository-url}}
         from-dir: ./
@@ -72,4 +72,4 @@ jobs:
     needs: [Sync-and-push-to-cloud]
     runs-on: self-hosted
     steps:
-      - uses: AxendoNL/sync-cleanup-action@master
+      - uses: AxendoNL/sync-cleanup-action@umbraco-v9
