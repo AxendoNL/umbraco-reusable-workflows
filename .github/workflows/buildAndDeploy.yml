@@ -1,9 +1,12 @@
-name: Build and deploy changes Umbraco V9
+name: Build and deploy changes Umbraco V8
 
 on:
   workflow_call:
     inputs:
       front-end-directory:
+        required: true
+        type: string
+      vue-directory:
         required: true
         type: string
       organization-name:
@@ -35,7 +38,17 @@ jobs:
       - name: build the frontend
         uses: AxendoNL/build-frontend-action@umbraco-v8
         with:
-          frontend-dir: ${{ inputs.front-end-directory }}
+          vue-dir: ${{ inputs.front-end-directory }}
+  
+  Build-vue:
+    name: Build Vue
+    needs: Build-frontend
+    runs-on: self-hosted
+    steps:
+      - name: build the frontend
+        uses: AxendoNL/build-vue-action@master
+        with:
+          frontend-dir: ${{ inputs.vue-directory }}
 
   # Build-NET:
   #   name: Build & Publish .NET
@@ -43,7 +56,7 @@ jobs:
   #   runs-on: self-hosted
   #   steps:
   #   - name: Setup .NET
-  #     uses: AxendoNL/dotnet-build-action@master
+  #     uses: AxendoNL/dotnet-build-action@umbraco-v8
   #     with:
   #       organization-name: ${{ inputs.organization-name }}
   #       project-name: ${{ inputs.project-name }}
