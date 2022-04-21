@@ -46,19 +46,19 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: build the frontend
-        uses: AxendoNL/build-vue-action@master
+        uses: AxendoNL/build-vue-action@umbraco-v8
         with:
           vue-dir: ${{ inputs.vue-directory }}
 
-  # Build-NET:
-  #   name: Build & Publish .NET
-  #   needs: Build-frontend
-  #   runs-on: self-hosted
-  #   steps:
-  #   - name: Setup .NET
-  #     uses: AxendoNL/dotnet-build-action@umbraco-v8
-  #     with:
-  #       organization-name: ${{ inputs.organization-name }}
-  #       project-name: ${{ inputs.project-name }}
-  #       build-configuration: ${{ inputs.build-configuration }}
-  #       csproj-path: ${{ inputs.csproj-path }}
+  Build-NET:
+    name: Build & Publish .NET
+    needs: Build-vue
+    runs-on: self-hosted
+    steps:
+    - name: Setup .NET
+      uses: AxendoNL/dotnet-build-action@umbraco-v8
+      with:
+        organization-name: ${{ inputs.organization-name }}
+        project-name: ${{ inputs.project-name }}
+        build-configuration: ${{ inputs.build-configuration }}
+        csproj-path: ${{ inputs.csproj-path }}
