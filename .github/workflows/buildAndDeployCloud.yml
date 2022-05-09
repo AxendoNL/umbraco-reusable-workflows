@@ -1,58 +1,67 @@
-# name: Build and deploy changes Umbraco V9 - Cloud
+name: Build and deploy changes Umbraco V8 - Cloud
 
-# on:
-#   workflow_call:
-#     inputs:
-#       front-end-directory:
-#         required: true
-#         type: string
-#       organization-name:
-#         required: true
-#         type: string
-#       project-name:
-#         required: true
-#         type: string
-#       build-configuration:
-#         required: true
-#         default: 'release'
-#         type: string
-#       csproj-path:
-#         required: true
-#         type: string
-#     secrets:
-#       cloud-repository-url:
-#         required: true
+on:
+  workflow_call:
+    inputs:
+      front-end-directory:
+        required: true
+        type: string
+      organization-name:
+        required: true
+        type: string
+      project-name:
+        required: true
+        type: string
+      build-configuration:
+        required: true
+        default: 'release'
+        type: string
+      csproj-path:
+        required: true
+        type: string
+    secrets:
+      cloud-repository-url:
+        required: true
 
-# jobs:
-#   Checkout-source:
-#     name: Checkout source code
-#     runs-on: self-hosted
-#     steps:
-#     - uses: actions/checkout@v3
+jobs:
+  Checkout-source:
+    name: Checkout source code
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v3
 
-#   Build-frontend:
-#     name: Build Frontend
-#     needs: Checkout-source
-#     runs-on: self-hosted
-#     steps:
-#       - name: build the frontend
-#         uses: AxendoNL/build-frontend-action@master
-#         with:
-#           frontend-dir: ${{ inputs.front-end-directory }}
+  Build-frontend:
+    name: Build Frontend
+    needs: Checkout-source
+    runs-on: self-hosted
+    steps:
+      - name: build the frontend
+        uses: AxendoNL/build-frontend-action@umbraco-v8
+        with:
+          frontend-dir: ${{ inputs.front-end-directory }}
 
-#   Build-NET:
-#     name: Build & Publish .NET
-#     needs: Build-frontend
-#     if: github.ref_name != 'master'
-#     runs-on: self-hosted
-#     steps:
-#     - name: Setup .NET
-#       uses: AxendoNL/dotnet-build-action@master
-#       with:
-#         organization-name: ${{ inputs.organization-name }}
-#         project-name: ${{ inputs.project-name }}
-#         build-configuration: ${{ inputs.build-configuration }}
-#         csproj-path: ${{ inputs.csproj-path }}
+  Build-vue:
+    name: Build Vue
+    needs: Build-frontend
+    runs-on: self-hosted
+    steps:
+      - name: build the frontend
+        uses: AxendoNL/build-vue-action@umbraco-v8
+        with:
+          vue-dir: ${{ inputs.vue-directory }}
+          
+  Build-NET:
+    name: Build & Publish .NET
+    needs: Build-vue
+    runs-on: self-hosted
+    steps:
+    - name: Setup .NET
+      uses: AxendoNL/dotnet-build-action@umbraco-v8
+      with:
+        organization-name: ${{ inputs.organization-name }}
+        project-name: ${{ inputs.project-name }}
+        build-configuration: ${{ inputs.build-configuration }}
+        csproj-path: ${{ inputs.csproj-path }}
 
 #   Sync-and-push-to-cloud: 
 #     name: Sync and push to cloud
