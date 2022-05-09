@@ -6,6 +6,9 @@ on:
       front-end-directory:
         required: true
         type: string
+      vue-directory:
+        required: true
+        type: string
       organization-name:
         required: true
         type: string
@@ -49,7 +52,7 @@ jobs:
         uses: AxendoNL/build-vue-action@umbraco-v8
         with:
           vue-dir: ${{ inputs.vue-directory }}
-          
+
   Build-NET:
     name: Build & Publish .NET
     needs: Build-vue
