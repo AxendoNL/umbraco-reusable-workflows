@@ -35,7 +35,7 @@ jobs:
       - name: build the frontend
         uses: AxendoNL/build-frontend-action@master
         with:
-          frontend-dir: ${{ inputs.front-end-directory }}
+          front-end-directory: ${{ inputs.front-end-directory }}
 
   Build-NET:
     name: Build & Publish .NET
