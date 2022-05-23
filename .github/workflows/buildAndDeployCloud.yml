@@ -6,6 +6,9 @@ on:
       front-end-directory:
         required: true
         type: string
+      cd-path:
+        required: false
+        type: string
       organization-name:
         required: true
         type: string
@@ -38,7 +41,8 @@ jobs:
       - name: build the frontend
         uses: AxendoNL/build-frontend-action@umbraco-v9
         with:
-          frontend-dir: ${{ inputs.front-end-directory }}
+          front-end-directory: ${{ inputs.front-end-directory }}
+          cd-path: ${{ inputs.cd-path }}
 
   Build-NET:
     name: Build & Publish .NET
