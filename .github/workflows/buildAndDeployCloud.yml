@@ -66,22 +66,22 @@ jobs:
         build-configuration: ${{ inputs.build-configuration }}
         csproj-path: ${{ inputs.csproj-path }}
 
-#   Sync-and-push-to-cloud: 
-#     name: Sync and push to cloud
-#     if: github.ref_name == 'master'
-#     needs: Build-frontend
-#     runs-on: self-hosted
+  Sync-and-push-to-cloud: 
+    name: Sync and push to cloud
+    if: github.ref_name == 'master'
+    needs: Build-frontend
+    runs-on: self-hosted
 
-#     steps:
-#     - uses: AxendoNL/sync-changes-to-cloud-action@master
-#       with:
-#         cloud-repository-url: ${{secrets.cloud-repository-url}}
-#         from-dir: ./
-#         to-dir: ../cloud-repository
+    steps:
+    - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v8
+      with:
+        cloud-repository-url: ${{secrets.cloud-repository-url}}
+        from-dir: ./
+        to-dir: ../cloud-repository
 
-#   cleanup:
-#     if: ${{ always() }}
-#     needs: [Sync-and-push-to-cloud]
-#     runs-on: self-hosted
-#     steps:
-#       - uses: AxendoNL/sync-cleanup-action@master
+  cleanup:
+    if: ${{ always() }}
+    needs: [Sync-and-push-to-cloud]
+    runs-on: self-hosted
+    steps:
+      - uses: AxendoNL/sync-cleanup-action@umbraco-v8
