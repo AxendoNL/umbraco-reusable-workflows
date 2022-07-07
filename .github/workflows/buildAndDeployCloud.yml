@@ -55,7 +55,6 @@ jobs:
 
   Build-NET:
     name: Build & Publish .NET
-    if: github.ref_name != 'master'
     needs: Build-vue
     runs-on: self-hosted
     steps:
@@ -77,7 +76,7 @@ jobs:
     - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v8
       with:
         cloud-repository-url: ${{secrets.cloud-repository-url}}
-        from-dir: ./
+        from-dir: ./*.web
         to-dir: ../cloud-repository
 
   cleanup:
