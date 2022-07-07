@@ -55,6 +55,7 @@ jobs:
 
   Build-NET:
     name: Build & Publish .NET
+    if: github.ref_name != 'master'
     needs: Build-vue
     runs-on: self-hosted
     steps:
@@ -69,7 +70,7 @@ jobs:
   Sync-and-push-to-cloud: 
     name: Sync and push to cloud
     if: github.ref_name == 'master'
-    needs: Build-NET
+    needs: Build-vue
     runs-on: self-hosted
 
     steps:
