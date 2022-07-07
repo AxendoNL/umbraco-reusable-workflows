@@ -76,7 +76,7 @@ jobs:
     - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v8
       with:
         cloud-repository-url: ${{secrets.cloud-repository-url}}
-        from-dir: ./*.web
+        from-dir: ./Axendo.Umb.Customer.Jumpstart.Web
         to-dir: ../cloud-repository
 
   cleanup:
