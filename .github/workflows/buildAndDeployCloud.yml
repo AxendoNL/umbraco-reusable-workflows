@@ -69,7 +69,7 @@ jobs:
   Sync-and-push-to-cloud: 
     name: Sync and push to cloud
     if: github.ref_name == 'master'
-    needs: Build-vue
+    needs: Build-NET
     runs-on: self-hosted
 
     steps:
