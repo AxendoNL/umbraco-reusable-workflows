@@ -79,9 +79,9 @@ jobs:
         from-dir: ./Axendo.Umb.Customer.Jumpstart.Web
         to-dir: ../cloud-repository
 
-  cleanup:
-    if: ${{ always() }}
-    needs: [Sync-and-push-to-cloud]
-    runs-on: self-hosted
-    steps:
-      - uses: AxendoNL/sync-cleanup-action@umbraco-v8
+  # cleanup:
+  #   if: ${{ always() }}
+  #   needs: [Sync-and-push-to-cloud]
+  #   runs-on: self-hosted
+  #   steps:
+  #     - uses: AxendoNL/sync-cleanup-action@umbraco-v8
