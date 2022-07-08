@@ -28,6 +28,8 @@ jobs:
     name: Checkout source code
     runs-on: self-hosted
     steps:
+    - name: git configure long path
+      run: git config --global core.longpaths true
     - uses: actions/checkout@v3
 
   Build-frontend:
