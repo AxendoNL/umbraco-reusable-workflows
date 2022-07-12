@@ -50,7 +50,7 @@ jobs:
       - name: build the frontend
         uses: AxendoNL/build-vue-action@umbraco-v8
         with:
-          vue-dir: ${{ inputs.vue-directory }}
+          vue-directory: ${{ inputs.vue-directory }}
 
   Build-NET:
     name: Build & Publish .NET
