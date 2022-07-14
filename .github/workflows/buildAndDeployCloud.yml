@@ -45,7 +45,7 @@ jobs:
 
   Build-vue:
     name: Build Vue
-    needs: Checkout-source
+    needs: Build-frontend
     runs-on: self-hosted
     steps:
       - name: build the frontend
@@ -55,7 +55,7 @@ jobs:
 
   Build-NET:
     name: Build & Publish .NET
-    needs: [Build-frontend, Build-vue]
+    needs: Build-vue
     runs-on: self-hosted
     steps:
     - name: Setup .NET
