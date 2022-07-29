@@ -46,7 +46,6 @@ jobs:
         run: echo ${env:FRONTEND_HASH}
       - name: Display the path
         run: echo ${env}
-        shell: pwsh
       
   Test-Frontend-Hash:
     name: Test env.FRONTEND_HASH
