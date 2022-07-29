@@ -32,7 +32,7 @@ jobs:
     
   ### run: echo "FRONTEND_HASH=$(git log -1 --pretty=format:'%H' --follow '${{ inputs.front-end-directory }}')" >> $env:GITHUB_ENV
   Get-Frontend-Hash:
-    name: Get last commit hash from front-end-directory env.FRONTEND_HASH 
+    name: Get last commit hash from front-end-directory
     needs: Checkout-source
     runs-on: self-hosted
     outputs:
@@ -61,7 +61,7 @@ jobs:
         with:
           path: ${{ inputs.front-end-directory }}
           key: frontend-build-${{needs.Get-Frontend-Hash.outputs.hash}}
-      - if: ${{ steps.cache-fontend.outputs.cache-hit == 'false' }}
+      - if: ${{ steps.cache-fontend.outputs.cache-hit == 'true' }}
         name: build the frontend
         uses: AxendoNL/build-frontend-action@umbraco-v9
         with:
