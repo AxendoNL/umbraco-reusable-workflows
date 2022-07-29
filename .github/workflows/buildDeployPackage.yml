@@ -41,7 +41,7 @@ jobs:
       - name: Test variable init
         run: echo ${env:FRONTEND_HASH}
       - name: Git Command
-        run: echo "FRONTEND_HASH=$(git log -1 --pretty=format:'%H' --follow '${{ inputs.front-end-directory }}')" >> $env:GITHUB_ENV
+        run: echo "FRONTEND_HASH=$(git log -1 --pretty=format:'%H' --follow '${{ inputs.front-end-directory }}')" >> $env:FRONTEND_HASH
       - name: Test variable
         run: echo ${env:FRONTEND_HASH}
       
