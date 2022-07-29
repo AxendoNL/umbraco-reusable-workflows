@@ -36,7 +36,7 @@ jobs:
     needs: Checkout-source
     runs-on: self-hosted
     outputs:
-      frontend_hash: ${{ steps.FRONTEND_HASH.outputs.hash }}
+      hash: ${{ steps.FRONTEND_HASH.outputs.hash }}
     steps:
       - id: FRONTEND_HASH
         run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%H' --follow '${{ inputs.front-end-directory }}')"
