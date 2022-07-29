@@ -39,7 +39,7 @@ jobs:
       hash: ${{ steps.FRONTEND_HASH.outputs.hash }}
     steps:
       - id: FRONTEND_HASH
-        run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%H' --follow '${{ inputs.front-end-directory }}')"
+        run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.front-end-directory }}')"
       
   ### This is a test function to check outputs of Get-Frontend-Hash!
   #Test-Frontend-Hash:
@@ -59,7 +59,7 @@ jobs:
         id: cache-fontend
         uses: actions/cache@v3
         with:
-          path: ${{ inputs.front-end-directory }}
+          path: ${{ github.workspace }}/Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web\wwwroot\assets
           key: frontend-build-${{needs.Get-Frontend-Hash.outputs.hash}}
       - name: build the frontend  ### below if will make sure this only runs when the frontend needs to build
         if: ${{ steps.cache-fontend.outputs.cache-hit == 'false' }}
