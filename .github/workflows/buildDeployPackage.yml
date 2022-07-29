@@ -59,7 +59,7 @@ jobs:
         id: cache-fontend
         uses: actions/cache@v3
         with:
-          path: ${{ github.workspace }}/Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web\wwwroot\assets
+          path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web\wwwroot\assets
           key: frontend-build-${{needs.Get-Frontend-Hash.outputs.hash}}
       - name: build the frontend  ### below if will make sure this only runs when the frontend needs to build
         if: ${{ steps.cache-fontend.outputs.cache-hit == 'false' }}
