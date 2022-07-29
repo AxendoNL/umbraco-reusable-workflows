@@ -80,3 +80,12 @@ jobs:
         project-name: ${{ inputs.project-name }}
         build-configuration: ${{ inputs.build-configuration }}
         csproj-path: ${{ inputs.csproj-path }}
+ 
+  Upload-Artifact:
+    name: Upload artifact
+    runs-on: self-hosted
+    steps:
+    - uses: actions/upload-artifact@v3
+      with:
+        name: ${{ inputs.organization-name }}-${{ inputs.project-name }}-${{ github.sha }}
+        path: "/Sites/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}"
