@@ -82,9 +82,9 @@ jobs:
           csproj-path: ${{ inputs.csproj-path }}
       ### Remove files from artifact if build success
       - name: Cleanup root
-        run: Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }} -Include ('*.json', '*.pbd', '*.config') | Remove-Item -Verbose
-      - name: Cleanup wwwroot
-        run: Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include *.config -Recurse | Remove-Item -Verbose
+        run: |
+          Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\* -Include ('*.json', '*.pbd', '*.config') | Remove-Item -Verbose
+          Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include ('*.config') -Recurse | Remove-Item -Verbose
       ### Create zipped artifact if build success
       - name: Create archive
         run: Compress-Archive -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }} -DestinationPath ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\Archive.zip
@@ -96,4 +96,4 @@ jobs:
           path: "${{ github.workspace }}/Archive/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}/Archive.zip"
       ### Cleanup
       - name: Remove Config and Json files
-        run: Remove-Item '${{ github.workspace }}\Archive' -Recurse
+        run: Remove-Item '${{ github.workspace }}\Archive' -Recurse 
