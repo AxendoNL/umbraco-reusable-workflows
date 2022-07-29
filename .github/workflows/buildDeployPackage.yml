@@ -36,7 +36,9 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Git Command
-        run: echo "FRONTEND_HASH=$(git log -1 --pretty=format:'%h' --follow ${{ inputs.front-end-directory }})" >> $GITHUB_ENV
+        run: echo "FRONTEND_HASH=$(git log -1 --pretty=format:'%h' --follow ${{ inputs.front-end-directory }})" >> $env:GITHUB_ENV
+      - name: Test variable
+        run: echo ${env:FRONTEND_HASH}
       
   Test-Frontend-Hash:
     name: Test env.FRONTEND_HASH
@@ -44,7 +46,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Test variable
-        run: echo $FRONTEND_HASH
+        run: echo ${env:FRONTEND_HASH}
       
   Build-frontend:
     name: Build Frontend
