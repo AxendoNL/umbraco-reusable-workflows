@@ -61,8 +61,8 @@ jobs:
         with:
           path: ${{ inputs.front-end-directory }}
           key: frontend-build-${{needs.Get-Frontend-Hash.outputs.hash}}
-      - if: ${{ steps.cache-fontend.outputs.cache-hit == 'true' }}
-        name: build the frontend
+      - name: build the frontend
+        if: ${{ steps.cache-fontend.outputs.cache-hit == 'true' }}
         uses: AxendoNL/build-frontend-action@umbraco-v9
         with:
           front-end-directory: ${{ inputs.front-end-directory }}
