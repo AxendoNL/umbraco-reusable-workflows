@@ -1,0 +1,55 @@
+name: Build Deploy Package Umbraco V9
+
+on:
+  workflow_call:
+    inputs:
+      front-end-directory:
+        required: true
+        type: string
+      cd-path:
+        required: false
+        type: string
+      organization-name:
+        required: true
+        type: string
+      project-name:
+        required: true
+        type: string
+      build-configuration:
+        required: true
+        default: 'release'
+        type: string
+      csproj-path:
+        required: true
+        type: string
+
+jobs:
+  Checkout-source:
+    name: Checkout source code
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v2
+
+  Build-frontend:
+    name: Build Frontend
+    needs: Checkout-source
+    runs-on: self-hosted
+    steps:
+      - name: build the frontend
+        uses: AxendoNL/build-frontend-action@umbraco-v9
+        with:
+          front-end-directory: ${{ inputs.front-end-directory }}
+          cd-path: ${{ inputs.cd-path }}
+
+  Build-NET:
+    name: Build & Publish .NET
+    needs: Build-frontend
+    runs-on: self-hosted
+    steps:
+    - name: Setup .NET
+      uses: AxendoNL/dotnet-package-action@umbraco-v9
+      with:
+        organization-name: ${{ inputs.organization-name }}
+        project-name: ${{ inputs.project-name }}
+        build-configuration: ${{ inputs.build-configuration }}
+        csproj-path: ${{ inputs.csproj-path }}
