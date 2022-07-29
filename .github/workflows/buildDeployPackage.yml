@@ -61,8 +61,8 @@ jobs:
         with:
           path: ${{ inputs.front-end-directory }}
           key: frontend-build-${{needs.Get-Frontend-Hash.outputs.hash}}
-      - name: build the frontend
-        if: ${{ steps.cache-fontend.outputs.cache-hit == 'true' }}
+      - name: build the frontend  ### below if will make sure this only runs when the frontend needs to build
+        if: ${{ steps.cache-fontend.outputs.cache-hit == 'false' }}
         uses: AxendoNL/build-frontend-action@umbraco-v9
         with:
           front-end-directory: ${{ inputs.front-end-directory }}
@@ -83,15 +83,17 @@ jobs:
       ### Remove files from artifact if build success
       - name: Remove Config and Json files
         run: |
-          Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }} -Include *.json,*pbd,*.config | Remove-Item -Verbose
+          Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }} -Include ('*.json', '*.pbd', '*.config') | Remove-Item -Verbose
           Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include *.config -Recurse | Remove-Item -Verbose
       ### Create zipped artifact if build success
       - name: Create archive
-        run: | 
-          Compress-Archive -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }} -DestinationPath ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\Archive.zip
+        run: Compress-Archive -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }} -DestinationPath ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\Archive.zip
       ### Upload zipped artifact if build success
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.organization-name }}-${{ inputs.project-name }}-${{ github.sha }}
           path: "${{ github.workspace }}/Archive/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}/Archive.zip"
+      ### Cleanup
+      - name: Remove Config and Json files
+        run: Remove-Item '${{ github.workspace }}\Archive' -Recurse
