@@ -73,19 +73,25 @@ jobs:
     needs: Build-frontend
     runs-on: self-hosted
     steps:
-    - name: Setup .NET
-      uses: AxendoNL/dotnet-package-action@umbraco-v9
-      with:
-        organization-name: ${{ inputs.organization-name }}
-        project-name: ${{ inputs.project-name }}
-        build-configuration: ${{ inputs.build-configuration }}
-        csproj-path: ${{ inputs.csproj-path }}
- 
-  Upload-Artifact:
-    name: Upload artifact
-    runs-on: self-hosted
-    steps:
-    - uses: actions/upload-artifact@v3
-      with:
-        name: ${{ inputs.organization-name }}-${{ inputs.project-name }}-${{ github.sha }}
-        path: "/Sites/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}"
+      - name: Setup .NET
+        uses: AxendoNL/dotnet-package-action@umbraco-v9
+        with:
+          organization-name: ${{ inputs.organization-name }}
+          project-name: ${{ inputs.project-name }}
+          build-configuration: ${{ inputs.build-configuration }}
+          csproj-path: ${{ inputs.csproj-path }}
+      ### Remove files from artifact if build success
+      - name: Remove Config and Json files
+        run: |
+          Get-ChildItem -Path ${{ github.workspace }}\Sites\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }} -Include *.json,*pbd,*.config | Remove-Item -Verbose
+          Get-ChildItem -Path ${{ github.workspace }}\Sites\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include *.config -Recurse | Remove-Item -Verbose
+      ### Create zipped artifact if build success
+      - name: Create archive
+        run: | 
+          Compress-Archive -Path ${{ github.workspace }}\Sites\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }} -DestinationPath ${{ github.workspace }}\Archive.zip
+      ### Upload zipped artifact if build success
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.organization-name }}-${{ inputs.project-name }}-${{ github.sha }}
+          path: "${{ github.workspace }}/Archive.zip"
