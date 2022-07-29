@@ -29,7 +29,17 @@ jobs:
     runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
-
+    
+  Get-Frontend-Hash:
+    name: Get last commit hash from front-end-directory env.FRONTEND_HASH 
+    needs: Checkout-source
+    runs-on: self-hosted
+    steps:
+      - name: Git Command
+        run: echo "FRONTEND_HASH=$(git log -1 --pretty=format:'%h' --follow ${{ inputs.front-end-directory }})" >> $GITHUB_ENV
+      - name: Test variable
+        run: echo ${{ env.FRONTEND_HASH }}
+      
   Build-frontend:
     name: Build Frontend
     needs: Checkout-source
