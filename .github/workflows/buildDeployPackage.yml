@@ -60,9 +60,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web\wwwroot\assets
-          key: frontend-build-${{needs.Get-Frontend-Hash.outputs.hash}}
+          key: frontend-cache-${{needs.Get-Frontend-Hash.outputs.hash}}
       - name: build the frontend  ### below if will make sure this only runs when the frontend needs to build
-        #if: ${{ steps.cache-frontend.outputs.cache-hit == 'false' }}
+        if: ${{ steps.cache-frontend.outputs.cache-hit == 'false' }}
         uses: AxendoNL/build-frontend-action@umbraco-v9
         with:
           front-end-directory: ${{ inputs.front-end-directory }}
