@@ -3,7 +3,7 @@ name: Build and deploy changes Umbraco V8
 on:
   workflow_call:
     inputs:
-      front-end-directory:
+      frontend-directory:
         required: true
         type: string
       cd-path:
@@ -49,7 +49,7 @@ jobs:
       hash: ${{ steps.FRONTEND_HASH.outputs.hash }}
     steps:
       - id: FRONTEND_HASH
-        run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.front-end-directory }}')"
+        run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.frontend-directory }}')"
 
   Build-frontend:
     name: Build Frontend
@@ -71,7 +71,7 @@ jobs:
         name: build the frontend
         uses: AxendoNL/build-frontend-action@umbraco-v8
         with:
-          front-end-directory: ${{ inputs.front-end-directory }}
+          frontend-directory: ${{ inputs.frontend-directory }}
           cd-path: ${{ inputs.cd-path }}
   
   Get-Vue-Hash:
