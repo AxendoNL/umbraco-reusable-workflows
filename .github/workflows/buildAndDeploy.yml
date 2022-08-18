@@ -108,7 +108,7 @@ jobs:
         uses: AxendoNL/build-vue-action@umbraco-v8
         with:
           vue-directory: ${{ inputs.vue-directory }}
-          cd-path: ${{ inputs.cd-path-vue }}
+          cd-path-vue: ${{ inputs.cd-path-vue }}
 
   Build-NET:
     name: Build & Publish .NET
