@@ -58,7 +58,7 @@ jobs:
     steps:
       ### First make sure the directory assets exists, this is needed or cache action will throw an error
       - name: Create Directory.
-        run: New-Item -Path "${{ env.app-path }}" -Name "assets" -ItemType "directory"
+        run: New-Item -Path "${{ env.app-path }}" -Name "assets" -ItemType "directory" -Force
       ### Check cache action for existing frontend build
       - name: Cache Frontend Build
         id: CACHE_FRONTEND
@@ -91,7 +91,7 @@ jobs:
     steps:
       ### First make sure the directory vue-apps exists, this is needed or cache action will throw an error
       - name: Create Directory.
-        run: New-Item -Path "${{ env.app-path }}" -Name "vue-apps" -ItemType "directory"
+        run: New-Item -Path "${{ env.app-path }}" -Name "vue-apps" -ItemType "directory" -Force
       ### Check cache action for existing vue build
       - name: Cache Vue Build
         id: CACHE_VUE
