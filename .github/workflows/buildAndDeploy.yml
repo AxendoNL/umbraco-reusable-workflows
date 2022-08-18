@@ -12,6 +12,9 @@ on:
       vue-directory:
         required: true
         type: string
+      cd-path-vue:
+        required: false
+        type: string
       organization-name:
         required: true
         type: string
@@ -72,7 +75,8 @@ jobs:
         uses: AxendoNL/build-frontend-action@umbraco-v8
         with:
           frontend-directory: ${{ inputs.frontend-directory }}
-          # cd-path: ${{ inputs.cd-path }}
+          if: github.event.inputs.cd-path != '' #Only set cd-path if provided
+          cd-path: ${{ inputs.cd-path }}
   
   Get-Vue-Hash:
     name: VUE Hash
@@ -105,7 +109,8 @@ jobs:
         uses: AxendoNL/build-vue-action@umbraco-v8
         with:
           vue-directory: ${{ inputs.vue-directory }}
-          # cd-path: ${{ inputs.cd-path }}
+          if: github.event.inputs.cd-path-vue != '' #Only set cd-path-vue if provided
+          cd-path: ${{ inputs.cd-path-vue }}
 
   Build-NET:
     name: Build & Publish .NET
