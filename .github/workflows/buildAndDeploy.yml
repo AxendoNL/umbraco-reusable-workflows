@@ -72,7 +72,7 @@ jobs:
         uses: AxendoNL/build-frontend-action@umbraco-v8
         with:
           frontend-directory: ${{ inputs.frontend-directory }}
-          cd-path: ${{ inputs.cd-path }}
+          # cd-path: ${{ inputs.cd-path }}
   
   Get-Vue-Hash:
     name: VUE Hash
@@ -105,7 +105,7 @@ jobs:
         uses: AxendoNL/build-vue-action@umbraco-v8
         with:
           vue-directory: ${{ inputs.vue-directory }}
-          cd-path: ${{ inputs.cd-path }}
+          # cd-path: ${{ inputs.cd-path }}
 
   Build-NET:
     name: Build & Publish .NET
