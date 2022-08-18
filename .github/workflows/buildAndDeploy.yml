@@ -103,17 +103,12 @@ jobs:
           path: ${{ env.vue-path }}
           key: vue-cache-${{needs.Get-Vue-Hash.outputs.hash}}
       ### below if will make sure this only runs when the vue apps need to be build 
-      - if: steps.CACHE_VUE.outputs.cache-hit != 'true'  && github.event.inputs.cd-path-vue != ''
+      - if: steps.CACHE_VUE.outputs.cache-hit != 'true'
         name: Build vue apps
         uses: AxendoNL/build-vue-action@umbraco-v8
         with:
           vue-directory: ${{ inputs.vue-directory }}
           cd-path: ${{ inputs.cd-path-vue }}
-      - if: steps.CACHE_VUE.outputs.cache-hit != 'true'  && github.event.inputs.cd-path-vue == ''
-        name: Build vue apps
-        uses: AxendoNL/build-vue-action@umbraco-v8
-        with:
-          vue-directory: ${{ inputs.vue-directory }}
 
   Build-NET:
     name: Build & Publish .NET
