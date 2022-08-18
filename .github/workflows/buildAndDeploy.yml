@@ -75,7 +75,6 @@ jobs:
         uses: AxendoNL/build-frontend-action@umbraco-v8
         with:
           frontend-directory: ${{ inputs.frontend-directory }}
-          if: github.event.inputs.cd-path != '' #Only set cd-path if provided
           cd-path: ${{ inputs.cd-path }}
   
   Get-Vue-Hash:
@@ -109,7 +108,6 @@ jobs:
         uses: AxendoNL/build-vue-action@umbraco-v8
         with:
           vue-directory: ${{ inputs.vue-directory }}
-          if: github.event.inputs.cd-path-vue != '' #Only set cd-path-vue if provided
           cd-path: ${{ inputs.cd-path-vue }}
 
   Build-NET:
