@@ -6,6 +6,9 @@ on:
       front-end-directory:
         required: true
         type: string
+      cd-path:
+        required: false
+        type: string
       vue-directory:
         required: true
         type: string
@@ -41,16 +44,18 @@ jobs:
         uses: AxendoNL/build-frontend-action@umbraco-v8
         with:
           frontend-directory: ${{ inputs.front-end-directory }}
+          cd-path: ${{ inputs.cd-path }}
   
   Build-vue:
     name: Build Vue
     needs: Build-frontend
     runs-on: self-hosted
     steps:
-      - name: build the frontend
+      - name: build vue apps
         uses: AxendoNL/build-vue-action@umbraco-v8
         with:
           vue-directory: ${{ inputs.vue-directory }}
+          cd-path: ${{ inputs.cd-path }}
 
   Build-NET:
     name: Build & Publish .NET
