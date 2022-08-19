@@ -22,6 +22,13 @@ on:
       csproj-path:
         required: true
         type: string
+        
+### Some environment variables to ease use and keep oversight        
+env:
+  app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
+  wwwroot-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web\wwwroot
+  assets-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web\wwwroot\assets
+  
 
 jobs:
   Checkout-source:
@@ -30,16 +37,48 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+  Get-Frontend-Hash:
+      name: Get last commit hash from front-end-directory
+      needs: Checkout-source
+      runs-on: self-hosted
+      outputs:
+        hash: ${{ steps.FRONTEND_HASH.outputs.hash }}
+      steps:
+        - id: FRONTEND_HASH
+          run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.front-end-directory }}')"
+      
+    ### This is a test function to check outputs of Get-Frontend-Hash!
+    #Test-Frontend-Hash:
+    #  name: Test env.FRONTEND_HASH
+    #  needs: Get-Frontend-Hash
+    #  runs-on: self-hosted
+    #  steps:
+    #    - name: Test variable
+    #      run: echo ${{needs.Get-Frontend-Hash.outputs.hash}}   
+      
   Build-frontend:
     name: Build Frontend
-    needs: Checkout-source
+    needs: Get-Frontend-Hash
     runs-on: self-hosted
     steps:
-      - name: build the frontend
+      ### First make sure the directory assets exists, this is needed or cache action will throw an error
+      - name: Create Directory.
+        run: New-Item -Path "${{ env.wwwroot-path }}" -Name "assets" -ItemType "directory"
+      ### Check cache action for existing frontend build
+      - name: Cache Frontend Build
+        id: CACHE_FRONTEND
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.assets-path }}
+          key: frontend-assets-cache-${{needs.Get-Frontend-Hash.outputs.hash}}
+      ### below if will make sure this only runs when the frontend needs to be build 
+      - if: steps.CACHE_FRONTEND.outputs.cache-hit != 'true'
+        name: build the frontend
         uses: AxendoNL/build-frontend-action@umbraco-v9
         with:
           front-end-directory: ${{ inputs.front-end-directory }}
           cd-path: ${{ inputs.cd-path }}
+
 
   Build-NET:
     name: Build & Publish .NET
