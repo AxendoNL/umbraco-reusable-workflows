@@ -81,7 +81,7 @@ jobs:
   
   Get-Vue-Hash:
     name: VUE Hash
-    needs: Checkout-source
+    needs: Build-frontend
     runs-on: self-hosted
     outputs:
       hash: ${{ steps.VUE_HASH.outputs.hash }}
