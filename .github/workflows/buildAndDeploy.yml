@@ -52,7 +52,6 @@ jobs:
       hash: ${{ steps.FRONTEND_HASH.outputs.hash }}
     steps:
       - id: FRONTEND_HASH
-        shell: bash
         run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.frontend-directory }}')"
 
   Build-frontend:
@@ -86,7 +85,6 @@ jobs:
       hash: ${{ steps.VUE_HASH.outputs.hash }}
     steps:
       - id: VUE_HASH
-        shell: bash
         run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.vue-directory }}')"
   
   Build-vue:
@@ -114,7 +112,7 @@ jobs:
 
   Build-NET:
     name: Build & Publish .NET
-    needs: Build-vue
+    needs: ['Build-frontend', 'Build-vue']
     runs-on: self-hosted
     steps:
     - name: Setup .NET
