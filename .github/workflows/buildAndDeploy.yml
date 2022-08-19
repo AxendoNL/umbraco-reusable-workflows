@@ -44,7 +44,7 @@ jobs:
       run: git config --global core.longpaths true
     - uses: actions/checkout@v3
       with: 
-        fetch-depth: 0 # fetch-depth 0 indicates fetching all history, this is needed for frontecb en vue caching
+        fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
 
   Get-Frontend-Hash:
     name: FRONTEND Hash
@@ -114,7 +114,7 @@ jobs:
 
   Build-NET:
     name: Build & Publish .NET
-    needs: ['Build-frontend', 'Build-vue']
+    needs: Build-vue
     runs-on: self-hosted
     steps:
     - name: Setup .NET
