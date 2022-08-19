@@ -43,6 +43,8 @@ jobs:
     - name: git configure long path
       run: git config --global core.longpaths true
     - uses: actions/checkout@v3
+      with: 
+        fetch-depth: 0 # fetch-depth 0 indicates fetching all history, this is needed for frontecb en vue caching
 
   Get-Frontend-Hash:
     name: FRONTEND Hash
