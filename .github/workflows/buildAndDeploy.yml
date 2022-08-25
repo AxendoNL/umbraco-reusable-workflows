@@ -58,7 +58,7 @@ jobs:
         run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.frontend-directory }}')"
 
   Build-frontend:
-    if: ${{ inputs.frontend-directory }} != ''
+    if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Get-Frontend-Hash
     runs-on: self-hosted
@@ -82,7 +82,7 @@ jobs:
           cd-path: ${{ inputs.cd-path }}
   
   Get-Vue-Hash:
-    if: ${{ inputs.vue-directory }} != ''
+    if: ${{ inputs.vue-directory }}
     name: VUE Hash
     needs: Build-frontend
     runs-on: self-hosted
@@ -93,7 +93,7 @@ jobs:
         run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.vue-directory }}')"
   
   Build-vue:
-    if: ${{ inputs.vue-directory }} != ''
+    if:  ${{ inputs.vue-directory }}
     name: Build Vue
     needs: Get-Vue-Hash         
     runs-on: self-hosted
@@ -119,6 +119,7 @@ jobs:
   Build-NET:
     name: Build & Publish .NET
     needs: Build-vue
+    if: always() && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     runs-on: self-hosted
     steps:
     - name: Setup .NET
