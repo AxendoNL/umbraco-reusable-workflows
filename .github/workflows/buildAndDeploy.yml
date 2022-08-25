@@ -4,13 +4,13 @@ on:
   workflow_call:
     inputs:
       frontend-directory:
-        required: true
+        required: false
         type: string
       cd-path:
         required: false
         type: string
       vue-directory:
-        required: true
+        required: false
         type: string
       cd-path-vue:
         required: false
@@ -47,6 +47,7 @@ jobs:
         fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
 
   Get-Frontend-Hash:
+    if: ${{ inputs.frontend-directory }} != ''
     name: FRONTEND Hash
     needs: Checkout-source
     runs-on: self-hosted
@@ -57,6 +58,7 @@ jobs:
         run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.frontend-directory }}')"
 
   Build-frontend:
+    if: ${{ inputs.frontend-directory }} != ''
     name: Build Frontend
     needs: Get-Frontend-Hash
     runs-on: self-hosted
@@ -80,6 +82,7 @@ jobs:
           cd-path: ${{ inputs.cd-path }}
   
   Get-Vue-Hash:
+    if: ${{ inputs.vue-directory }} != ''
     name: VUE Hash
     needs: Build-frontend
     runs-on: self-hosted
@@ -90,6 +93,7 @@ jobs:
         run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.vue-directory }}')"
   
   Build-vue:
+    if: ${{ inputs.vue-directory }} != ''
     name: Build Vue
     needs: Get-Vue-Hash         
     runs-on: self-hosted
