@@ -3,7 +3,7 @@ name: Build Deploy Package Umbraco V8
 on:
   workflow_call:
     inputs:
-      front-end-directory:
+      frontend-directory:
         required: true
         type: string
       cd-path:
