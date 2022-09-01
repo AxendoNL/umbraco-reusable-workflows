@@ -124,7 +124,7 @@ jobs:
 
   Build-NET:
     name: Build & Publish .NET
-    needs: Build-frontend
+    needs: Build-vue
     runs-on: self-hosted
     steps:
     - name: Setup .NET
