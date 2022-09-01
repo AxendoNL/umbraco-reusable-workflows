@@ -3,10 +3,16 @@ name: Build Deploy Package Umbraco V9
 on:
   workflow_call:
     inputs:
-      front-end-directory:
+      frontend-directory:
         required: true
         type: string
       cd-path:
+        required: false
+        type: string
+      vue-directory:
+        required: false
+        type: string
+      cd-path-vue:
         required: false
         type: string
       organization-name:
@@ -25,63 +31,93 @@ on:
         
 env:
   app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
-  wwwroot-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web\wwwroot
   assets-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web\wwwroot\assets
+  vue-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web\wwwroot\vue-apps
 
 jobs:
   Checkout-source:
     name: Checkout source code
     runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v2
+    - name: git configure long path
+      run: git config --global core.longpaths true
+    - uses: actions/checkout@v3
+      with: 
+        fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
     
-  ### run: echo "FRONTEND_HASH=$(git log -1 --pretty=format:'%H' --follow '${{ inputs.front-end-directory }}')" >> $env:GITHUB_ENV
   Get-Frontend-Hash:
-    name: Get last commit hash from front-end-directory
+    if: ${{ inputs.frontend-directory }}
+    name: FRONTEND Hash
     needs: Checkout-source
     runs-on: self-hosted
     outputs:
       hash: ${{ steps.FRONTEND_HASH.outputs.hash }}
     steps:
       - id: FRONTEND_HASH
-        run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.front-end-directory }}')"
-      
-  ### This is a test function to check outputs of Get-Frontend-Hash!
-  #Test-Frontend-Hash:
-  #  name: Test env.FRONTEND_HASH
-  #  needs: Get-Frontend-Hash
-  #  runs-on: self-hosted
-  #  steps:
-  #    - name: Test variable
-  #      run: echo ${{needs.Get-Frontend-Hash.outputs.hash}}   
-      
+        run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.frontend-directory }}')"
+
   Build-frontend:
+    if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Get-Frontend-Hash
     runs-on: self-hosted
     steps:
       ### First make sure the directory assets exists, this is needed or cache action will throw an error
       - name: Create Directory.
-        run: New-Item -Path "${{ env.wwwroot-path }}" -Name "assets" -ItemType "directory"
+        run: New-Item -Path "${{ env.app-path }}\wwwroot" -Name "assets" -ItemType "directory" -Force
       ### Check cache action for existing frontend build
       - name: Cache Frontend Build
         id: CACHE_FRONTEND
         uses: actions/cache@v3
         with:
           path: ${{ env.assets-path }}
-          key: frontend-assets-cache-${{needs.Get-Frontend-Hash.outputs.hash}}
+          key: frontend-cache-${{needs.Get-Frontend-Hash.outputs.hash}}
       ### below if will make sure this only runs when the frontend needs to be build 
       - if: steps.CACHE_FRONTEND.outputs.cache-hit != 'true'
         name: build the frontend
-        continue-on-error: true
         uses: AxendoNL/build-frontend-action@umbraco-v9
         with:
-          front-end-directory: ${{ inputs.front-end-directory }}
+          frontend-directory: ${{ inputs.frontend-directory }}
           cd-path: ${{ inputs.cd-path }}
+  
+  Get-Vue-Hash:
+    if: ${{ inputs.vue-directory }}
+    name: VUE Hash
+    needs: Build-frontend
+    runs-on: self-hosted
+    outputs:
+      hash: ${{ steps.VUE_HASH.outputs.hash }}
+    steps:
+      - id: VUE_HASH
+        run: echo "::set-output name=hash::$(git log -1 --pretty=format:'%h' --follow '${{ inputs.vue-directory }}')"
+  
+  Build-vue:
+    if:  ${{ inputs.vue-directory }}
+    name: Build Vue
+    needs: Get-Vue-Hash         
+    runs-on: self-hosted
+    steps:
+      ### First make sure the directory vue-apps exists, this is needed or cache action will throw an error
+      - name: Create Directory.
+        run: New-Item -Path "${{ env.app-path }}\wwwroot" -Name "vue-apps" -ItemType "directory" -Force
+      ### Check cache action for existing vue build
+      - name: Cache Vue Build
+        id: CACHE_VUE
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.vue-path }}
+          key: vue-cache-${{needs.Get-Vue-Hash.outputs.hash}}
+      ### below if will make sure this only runs when the vue apps need to be build 
+      - if: steps.CACHE_VUE.outputs.cache-hit != 'true'
+        name: Build vue apps
+        uses: AxendoNL/build-vue-action@umbraco-v9
+        with:
+          vue-directory: ${{ inputs.vue-directory }}
+          cd-path-vue: ${{ inputs.cd-path-vue }}
 
   Build-NET:
     name: Build & Publish .NET
-    needs: Build-frontend
+    needs: Build-vue
     runs-on: self-hosted
     steps:
       - name: Setup .NET
