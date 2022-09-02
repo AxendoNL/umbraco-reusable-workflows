@@ -3,10 +3,16 @@ name: Build and deploy changes Umbraco V10 - Cloud
 on:
   workflow_call:
     inputs:
-      front-end-directory:
-        required: true
+      frontend-directory:
+        required: false
         type: string
       cd-path:
+        required: false
+        type: string
+      vue-directory:
+        required: false
+        type: string
+      cd-path-vue:
         required: false
         type: string
       organization-name:
@@ -26,27 +32,50 @@ on:
       cloud-repository-url:
         required: true
 
+### Some environment variables to ease use and keep oversight        
+env:
+  app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
+
 jobs:
   Checkout-source:
     name: Checkout source code
     runs-on: self-hosted
     steps:
+    - name: git configure long path
+      run: git config --global core.longpaths true
     - uses: actions/checkout@v3
+      with: 
+        fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
 
   Build-frontend:
+    if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Checkout-source
     runs-on: self-hosted
     steps:
       - name: build the frontend
-        uses: AxendoNL/build-frontend-action@umbraco-v10
+        uses: AxendoNL/build-frontend-action@umbraco-v10.1
         with:
-          front-end-directory: ${{ inputs.front-end-directory }}
+          frontend-directory: ${{ inputs.frontend-directory }}
           cd-path: ${{ inputs.cd-path }}
+          app-path: ${{ env.app-path }}
+          
+  Build-vue:
+    if:  ${{ inputs.vue-directory }}
+    name: Build Vue
+    needs: Build-frontend         
+    runs-on: self-hosted
+    steps:
+      - name: Build vue apps
+        uses: AxendoNL/build-vue-action@umbraco-v10.1
+        with:
+          vue-directory: ${{ inputs.vue-directory }}
+          cd-path-vue: ${{ inputs.cd-path-vue }}
+          app-path: ${{ env.app-path }}
 
   Build-NET:
     name: Build & Publish .NET
-    needs: Build-frontend
+    needs: Build-vue
     if: github.ref_name != 'master'
     runs-on: self-hosted
     steps:
@@ -61,7 +90,7 @@ jobs:
   Sync-and-push-to-cloud: 
     name: Sync and push to cloud
     if: github.ref_name == 'master'
-    needs: Build-frontend
+    needs: Build-NET
     runs-on: self-hosted
 
     steps:
