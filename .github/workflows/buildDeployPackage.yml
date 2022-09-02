@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       frontend-directory:
-        required: true
+        required: false
         type: string
       cd-path:
         required: false
