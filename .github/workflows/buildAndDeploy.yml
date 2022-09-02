@@ -48,6 +48,7 @@ jobs:
         fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
 
   Get-Frontend-Hash:
+      if: ${{ inputs.frontend-directory }}
       name: Get last commit hash from frontend-directory
       needs: Checkout-source
       runs-on: self-hosted
@@ -67,6 +68,7 @@ jobs:
     #      run: echo ${{needs.Get-Frontend-Hash.outputs.hash}}   
       
   Build-frontend:
+    if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Get-Frontend-Hash
     runs-on: self-hosted
