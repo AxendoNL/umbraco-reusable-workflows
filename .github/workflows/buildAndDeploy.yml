@@ -1,4 +1,4 @@
-name: Build and deploy changes Umbraco V8
+name: Build and deploy changes Umbraco V8.1
 
 on:
   workflow_call:
@@ -32,8 +32,6 @@ on:
 ### Some environment variables to ease use and keep oversight        
 env:
   app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
-  assets-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web\assets
-  vue-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web\vue-apps
         
 jobs:
   Checkout-source:
