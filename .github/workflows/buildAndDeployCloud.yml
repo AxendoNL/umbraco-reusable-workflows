@@ -3,7 +3,7 @@ name: Build and deploy changes Umbraco V9 - Cloud
 on:
   workflow_call:
     inputs:
-      front-end-directory:
+      frontend-directory:
         required: true
         type: string
       cd-path:
@@ -41,7 +41,7 @@ jobs:
       - name: build the frontend
         uses: AxendoNL/build-frontend-action@umbraco-v9
         with:
-          front-end-directory: ${{ inputs.front-end-directory }}
+          frontend-directory: ${{ inputs.frontend-directory }}
           cd-path: ${{ inputs.cd-path }}
 
   Build-NET:
