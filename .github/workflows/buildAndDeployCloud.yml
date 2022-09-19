@@ -89,9 +89,8 @@ jobs:
 
   Sync-and-push-to-cloud: 
     name: Sync and push to cloud
-    needs: Build-vue
     if: github.ref_name == 'master'
-    needs: Build-frontend
+    needs: Build-vue
     runs-on: self-hosted
 
     steps:
