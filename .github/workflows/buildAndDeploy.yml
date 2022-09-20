@@ -81,4 +81,4 @@ jobs:
         organization-name: ${{ inputs.organization-name }}
         project-name: ${{ inputs.project-name }}
         build-configuration: ${{ inputs.build-configuration }}
-        csproj-path: ${{ inputs.csproj-path }}
+        csproj-path: ${{ inputs.csproj-path }} 
