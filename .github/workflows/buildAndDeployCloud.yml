@@ -106,4 +106,3 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: AxendoNL/sync-cleanup-action@umbraco-v9
-      
