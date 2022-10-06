@@ -88,12 +88,13 @@ jobs:
           Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\* -Include ('*.json', '*.pbd', '*.config', '*.lic') -Exclude '*.deps.json', '*.runtimeconfig.*' | Remove-Item -Verbose
           Remove-Item ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\Config -Force -Recurse
           Remove-Item ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\App_Data -Force -Recurse
-          if(Test-Path "robots.txt"){ Remove-Item "robots.txt" }
-          if(Test-Path ".gitignore"){ Remove-Item ".gitignore" }
-          if(Test-Path ".gitattributes"){ Remove-Item ".gitattributes" }
+      - name: Remove robots.txt
+          run: if(Test-Path "robots.txt"){ Remove-Item "robots.txt" }
+          #if(Test-Path ".gitignore"){ Remove-Item ".gitignore" }
+          #if(Test-Path ".gitattributes"){ Remove-Item ".gitattributes" }
       ### Create zipped artifact if build success
-      - name: Create archive
-        run: Compress-Archive -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }} -DestinationPath ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\Archive.zip
+      #- name: Create archive
+        #run: Compress-Archive -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }} -DestinationPath ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\Archive.zip
       ### Upload zipped artifact if build success
       - name: Upload artifact
         uses: actions/upload-artifact@v3
