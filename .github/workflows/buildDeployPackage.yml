@@ -32,7 +32,7 @@ on:
 ### Some environment variables to ease use and keep oversight        
 env:
   app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
-  
+
 jobs:
   Checkout-source:
     name: Checkout source code
@@ -91,10 +91,8 @@ jobs:
       - name: Remove all .lic files
         run: Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\*.lic -Recurse -Force | Remove-Item -Verbose
       - name: Remove robots.txt
-        run: |
-          if(Test-Path robots.txt){
-            Remove-Item robots.txt
-          } 
+        run: if(Test-Path robots.txt){ Remove-Item robots.txt }
+        working-directory: ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}
           #if(Test-Path ".gitignore"){ Remove-Item ".gitignore" }
           #if(Test-Path ".gitattributes"){ Remove-Item ".gitattributes" }
       ### Create zipped artifact if build success
