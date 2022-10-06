@@ -39,7 +39,7 @@ env:
 jobs:
   Checkout-source:
     name: Checkout source code
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
     - name: git configure long path
       run: git config --global core.longpaths true
@@ -51,7 +51,7 @@ jobs:
       if: ${{ inputs.frontend-directory }}
       name: Get last commit hash from frontend-directory
       needs: Checkout-source
-      runs-on: self-hosted
+      runs-on: [self-hosted, axendo]
       outputs:
         hash: ${{ steps.FRONTEND_HASH.outputs.hash }}
       steps:
@@ -62,7 +62,7 @@ jobs:
     #Test-Frontend-Hash:
     #  name: Test env.FRONTEND_HASH
     #  needs: Get-Frontend-Hash
-    #  runs-on: self-hosted
+    #  runs-on: [self-hosted, axendo]
     #  steps:
     #    - name: Test variable
     #      run: echo ${{needs.Get-Frontend-Hash.outputs.hash}}   
@@ -71,7 +71,7 @@ jobs:
     if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Get-Frontend-Hash
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       ### First make sure the directory assets exists, this is needed or cache action will throw an error
       - name: Create Directory.
@@ -96,7 +96,7 @@ jobs:
     if: ${{ inputs.vue-directory }}
     name: VUE Hash
     needs: Build-frontend
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     outputs:
       hash: ${{ steps.VUE_HASH.outputs.hash }}
     steps:
@@ -107,7 +107,7 @@ jobs:
     if:  ${{ inputs.vue-directory }}
     name: Build Vue
     needs: Get-Vue-Hash         
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       ### First make sure the directory vue-apps exists, this is needed or cache action will throw an error
       - name: Create Directory.
@@ -131,7 +131,7 @@ jobs:
   Build-NET:
     name: Build & Publish .NET
     needs: Build-vue
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
     - name: Setup .NET
       uses: AxendoNL/dotnet-build-action@umbraco-v9
