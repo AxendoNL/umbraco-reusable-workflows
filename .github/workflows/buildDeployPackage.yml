@@ -113,8 +113,10 @@ jobs:
     steps:
       - name: Create archive
         run: Compress-Archive -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }} -DestinationPath ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\Archive.zip
+  
   Upload-Artifact:
     name: Upload Artifact
+    needs: Create-Artifact
     runs-on: [self-hosted, axendo]
     steps:
       - name: Upload artifact
@@ -125,7 +127,7 @@ jobs:
 
   Cleanup:
     if: ${{ always() }}
-    needs: Create-Artifact
+    needs: Upload-Artifact
     runs-on: [self-hosted, axendo]
     steps:
       - name: Remove Config and Json files
