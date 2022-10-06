@@ -89,7 +89,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     defaults:
       run:
-        shell: pws
+        shell: pwsh
         working-directory: ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}
     steps:
       - name: Remove json, pbd and config files
