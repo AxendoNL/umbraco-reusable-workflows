@@ -36,7 +36,7 @@ env:
 jobs:
   Checkout-source:
     name: Checkout source code
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
     - name: git configure long path
       run: git config --global core.longpaths true
@@ -48,7 +48,7 @@ jobs:
     if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Checkout-source
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       - name: build the frontend
         uses: AxendoNL/build-frontend-action@umbraco-v9.1
@@ -61,7 +61,7 @@ jobs:
     if:  ${{ inputs.vue-directory }}
     name: Build Vue
     needs: Build-frontend         
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       - name: Build vue apps
         uses: AxendoNL/build-vue-action@umbraco-v9.1
@@ -73,7 +73,7 @@ jobs:
   Build-NET:
     name: Build & Publish .NET
     needs: Build-vue
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
     - name: Setup .NET
       uses: AxendoNL/dotnet-build-action@umbraco-v9
