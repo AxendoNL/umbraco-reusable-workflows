@@ -86,8 +86,8 @@ jobs:
       - name: Cleanup root
         run: |
           Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\* -Include ('*.json', '*.pbd', '*.config', '*.lic') -Exclude '*.deps.json', '*.runtimeconfig.*' | Remove-Item -Verbose
-          Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\Config -Recurse | Remove-Item -Verbose
-          Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\App_Data -Recurse | Remove-Item -Verbose
+          Remove-Item ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\Config -Force -Recurse
+          Remove-Item ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\App_Data -Force -Recurse
       #    Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include ('*.config') -Recurse | Remove-Item -Verbose
       ### Create zipped artifact if build success
       - name: Create archive
