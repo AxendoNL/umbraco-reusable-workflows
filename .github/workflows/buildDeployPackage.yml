@@ -101,17 +101,22 @@ jobs:
         run: Get-ChildItem -Path .\*.lic -Recurse -Force | Remove-Item -Verbose
       - name: Remove robots.txt
         run: if(Test-Path robots.txt){ Remove-Item robots.txt }
+      - name: Remove gitignore
+        run: if(Test-Path ".gitignore"){ Remove-Item ".gitignore" }
+      - name: Remove robots.txt
+        run: if(Test-Path ".gitattributes"){ Remove-Item ".gitattributes" }
 
   Create-Artifact:
     name: Create Artifact
     needs: Delete-Files
     runs-on: [self-hosted, axendo]
     steps:
-          #if(Test-Path ".gitignore"){ Remove-Item ".gitignore" }
-          #if(Test-Path ".gitattributes"){ Remove-Item ".gitattributes" }
       - name: Create archive
         run: Compress-Archive -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }} -DestinationPath ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\Archive.zip
-      ### Upload zipped artifact if build success
+  Upload-Artifact:
+    name: Upload Artifact
+    runs-on: [self-hosted, axendo]
+    steps:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
