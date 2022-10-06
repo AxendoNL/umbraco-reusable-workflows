@@ -100,7 +100,8 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.organization-name }}-${{ inputs.project-name }}-${{ github.sha }}
-          path: "${{ github.workspace }}/Archive/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}/Archive.zip"
+          path: "${{ github.workspace }}/Archive/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}"
+          #path: "${{ github.workspace }}/Archive/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}/Archive.zip"
       ### Cleanup
       - name: Remove Config and Json files
         run: Remove-Item '${{ github.workspace }}\Archive' -Recurse 
