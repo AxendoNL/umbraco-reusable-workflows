@@ -31,7 +31,7 @@ env:
 jobs:
   Checkout-source:
     name: Checkout source code
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
     - uses: actions/checkout@v2
     
@@ -39,7 +39,7 @@ jobs:
   Get-Frontend-Hash:
     name: Get last commit hash from front-end-directory
     needs: Checkout-source
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     outputs:
       hash: ${{ steps.FRONTEND_HASH.outputs.hash }}
     steps:
@@ -50,7 +50,7 @@ jobs:
   #Test-Frontend-Hash:
   #  name: Test env.FRONTEND_HASH
   #  needs: Get-Frontend-Hash
-  #  runs-on: self-hosted
+  #  runs-on: [self-hosted, axendo]
   #  steps:
   #    - name: Test variable
   #      run: echo ${{needs.Get-Frontend-Hash.outputs.hash}}   
@@ -58,7 +58,7 @@ jobs:
   Build-frontend:
     name: Build Frontend
     needs: Get-Frontend-Hash
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       ### First make sure the directory assets exists, this is needed or cache action will throw an error
       - name: Create Directory.
@@ -82,7 +82,7 @@ jobs:
   Build-NET:
     name: Build & Publish .NET
     needs: Build-frontend
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       - name: Setup .NET
         uses: AxendoNL/dotnet-package-action@umbraco-v10

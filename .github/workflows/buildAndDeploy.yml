@@ -26,14 +26,14 @@ on:
 jobs:
   Checkout-source:
     name: Checkout source code
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
     - uses: actions/checkout@v3
 
   Build-frontend:
     name: Build Frontend
     needs: Checkout-source
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       - name: build the frontend
         uses: AxendoNL/build-frontend-action@umbraco-v10
@@ -44,7 +44,7 @@ jobs:
   Build-NET:
     name: Build & Publish .NET
     needs: Build-frontend
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
     - name: Setup .NET
       uses: AxendoNL/dotnet-build-action@umbraco-v10

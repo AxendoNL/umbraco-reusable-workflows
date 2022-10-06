@@ -29,14 +29,14 @@ on:
 jobs:
   Checkout-source:
     name: Checkout source code
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
     - uses: actions/checkout@v3
 
   Build-frontend:
     name: Build Frontend
     needs: Checkout-source
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       - name: build the frontend
         uses: AxendoNL/build-frontend-action@umbraco-v10
@@ -48,7 +48,7 @@ jobs:
     name: Build & Publish .NET
     needs: Build-frontend
     if: github.ref_name != 'master'
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
     - name: Setup .NET
       uses: AxendoNL/dotnet-build-action@umbraco-v10
@@ -62,7 +62,7 @@ jobs:
     name: Sync and push to cloud
     if: github.ref_name == 'master'
     needs: Build-frontend
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
 
     steps:
     - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v9
@@ -74,6 +74,6 @@ jobs:
   cleanup:
     if: ${{ always() }}
     needs: [Sync-and-push-to-cloud]
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       - uses: AxendoNL/sync-cleanup-action@umbraco-v9
