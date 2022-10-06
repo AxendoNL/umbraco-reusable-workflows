@@ -89,7 +89,7 @@ jobs:
           Remove-Item ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\Config -Force -Recurse
           Remove-Item ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\App_Data -Force -Recurse
       - name: Remove robots.txt
-          run: if(Test-Path "robots.txt"){ Remove-Item "robots.txt" }
+        run: if(Test-Path "robots.txt"){ Remove-Item "robots.txt" }
           #if(Test-Path ".gitignore"){ Remove-Item ".gitignore" }
           #if(Test-Path ".gitattributes"){ Remove-Item ".gitattributes" }
       ### Create zipped artifact if build success
