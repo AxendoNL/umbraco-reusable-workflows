@@ -94,7 +94,7 @@ jobs:
     steps:
       - name: Remove json, pbd and config files
         run:  Get-ChildItem -Path .\* -Include ('*.json', '*.pbd', '*.config') -Exclude '*.deps.json', '*.runtimeconfig.*' | Remove-Item -Verbose
-      -name: Delete Config folder
+      - name: Delete Config folder
         run: Remove-Item Config -Force -Recurse
       - name: Delete App_Data folder
         run: Remove-Item App_Data -Force -Recurse
