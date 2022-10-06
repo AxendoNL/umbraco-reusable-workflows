@@ -40,7 +40,7 @@ env:
 jobs:
   Checkout-source:
     name: Checkout source code
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
     - name: git configure long path
       run: git config --global core.longpaths true
@@ -51,7 +51,7 @@ jobs:
   Get-Frontend-Hash:
     name: FRONTEND Hash
     needs: Checkout-source
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     outputs:
       hash: ${{ steps.FRONTEND_HASH.outputs.hash }}
     steps:
@@ -61,7 +61,7 @@ jobs:
   Build-frontend:
     name: Build Frontend
     needs: Get-Frontend-Hash
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       ### First make sure the directory assets exists, this is needed or cache action will throw an error
       - name: Create Directory.
@@ -84,7 +84,7 @@ jobs:
   Get-Vue-Hash:
     name: VUE Hash
     needs: Build-frontend
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     outputs:
       hash: ${{ steps.VUE_HASH.outputs.hash }}
     steps:
@@ -94,7 +94,7 @@ jobs:
   Build-vue:
     name: Build Vue
     needs: Get-Vue-Hash         
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       ### First make sure the directory vue-apps exists, this is needed or cache action will throw an error
       - name: Create Directory.
@@ -117,7 +117,7 @@ jobs:
   Build-NET:
     name: Build & Publish .NET
     needs: Build-vue
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
     - name: Setup .NET
       uses: AxendoNL/dotnet-build-action@umbraco-v8
@@ -131,7 +131,7 @@ jobs:
     name: Sync and push to cloud
     if: github.ref_name == 'master'
     needs: Build-NET
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
 
     steps:
     - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v8
@@ -141,6 +141,6 @@ jobs:
   cleanup:
     if: ${{ always() }}
     needs: [Sync-and-push-to-cloud]
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       - uses: AxendoNL/sync-cleanup-action@umbraco-v8

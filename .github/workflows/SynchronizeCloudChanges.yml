@@ -13,7 +13,7 @@ on:
 jobs:
   Synchronize:
     name: Synchronize
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       - uses: actions/checkout@v3
       - uses: AxendoNL/sync-changes-from-cloud-action@umbraco-v8
@@ -23,6 +23,6 @@ jobs:
   Cleanup:
     if: ${{ always() }}
     needs: Synchronize
-    runs-on: self-hosted
+    runs-on: [self-hosted, axendo]
     steps:
       - uses: AxendoNL/sync-cleanup-action@umbraco-v8
