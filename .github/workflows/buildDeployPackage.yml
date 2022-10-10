@@ -126,7 +126,6 @@ jobs:
           path: "${{ github.workspace }}/Archive/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}/Archive.zip"
 
   Cleanup:
-    if: ${{ always() }}
     needs: Upload-Artifact
     runs-on: [self-hosted, axendo]
     steps:
