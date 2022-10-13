@@ -90,4 +90,4 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
     - name: Delete GitHub workspace
-      run: Remove-Item -Recurse -Force ${{ github.workspace }}
+      run: Remove-Item -Recurse -Force ./*
