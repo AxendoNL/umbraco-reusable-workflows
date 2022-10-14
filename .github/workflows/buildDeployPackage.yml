@@ -60,10 +60,7 @@ jobs:
   Build-vue:
     name: Build Vue
     needs: Build-frontend
-    if: | 
-      always()
-      && inputs.vue-directory 
-      && needs.Build-frontend.result != 'failed' 
+    if: always() && inputs.vue-directory && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') 
     runs-on: [self-hosted, axendo]
     steps:
       - name: Build vue apps
@@ -78,8 +75,8 @@ jobs:
     needs: [Build-frontend, Build-vue]
     if: | # This statement forces Build-NET to always run after build-frontend and build-vue when neither job failed (but can be skipped)
       always() 
-      && needs.Build-frontend.result != 'failed' 
-      && needs.Build-vue.result != 'failed'
+      && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped')
+      && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     runs-on: [self-hosted, axendo]
     steps:
       - name: Setup .NET
