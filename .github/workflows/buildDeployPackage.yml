@@ -114,6 +114,7 @@ jobs:
   Create-Artifact:
     name: Create Artifact
     needs: Delete-Files
+    if: always() && needs.Delete-Files.result == 'success'
     runs-on: [self-hosted, axendo]
     steps:
       - name: Create archive
@@ -122,6 +123,7 @@ jobs:
   Upload-Artifact:
     name: Upload Artifact
     needs: Create-Artifact
+    if: always() && needs.Create-Artifact.result == 'success'
     runs-on: [self-hosted, axendo]
     steps:
       - name: Upload artifact
@@ -132,6 +134,7 @@ jobs:
 
   Cleanup:
     needs: Upload-Artifact
+    if: always() && needs.Upload-Artifact.result == 'success'
     runs-on: [self-hosted, axendo]
     steps:
       - name: Remove Config and Json files
