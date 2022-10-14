@@ -90,7 +90,7 @@ jobs:
   Delete-Files:
     name: Delete non-production files
     needs: Build-NET
-    if: needs.Build-NET.result == 'success' 
+    if: always() && needs.Build-NET.result == 'success' 
     runs-on: [self-hosted, axendo]
     defaults:
       run:
