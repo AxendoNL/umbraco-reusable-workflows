@@ -58,9 +58,12 @@ jobs:
           app-path: ${{ env.app-path }}
   
   Build-vue:
-    if: always() && ${{ inputs.vue-directory }} && needs.Build-frontend.result != 'failed' 
     name: Build Vue
     needs: Build-frontend
+    if: | 
+      always()
+      && inputs.vue-directory 
+      && needs.Build-frontend.result != 'failed' 
     runs-on: [self-hosted, axendo]
     steps:
       - name: Build vue apps
