@@ -60,7 +60,7 @@ jobs:
   Build-vue:
     if:  ${{ inputs.vue-directory }}
     name: Build Vue
-    needs: Checkout-source         
+    needs: Build-frontend     
     runs-on: [self-hosted, axendo]
     steps:
       - name: Build vue apps
