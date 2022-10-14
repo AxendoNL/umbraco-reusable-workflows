@@ -72,7 +72,11 @@ jobs:
 
   Build-NET:
     name: Build & Publish .NET
-    needs: Build-vue
+    needs: [Build-frontend, Build-vue]
+    if: | # This statement forces Build-NET to always run after build-frontend and build-vue when neither job failed (but can be skipped)
+      always() 
+      && needs.Build-frontend.result != 'failed' 
+      && needs.Build-vue.result != 'failed'
     runs-on: [self-hosted, axendo]
     steps:
       - name: Setup .NET
