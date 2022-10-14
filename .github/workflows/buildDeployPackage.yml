@@ -73,7 +73,7 @@ jobs:
   Build-NET:
     name: Build & Publish .NET
     needs: [Build-vue]
-    if: always() && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
+    if: (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     #if: | # This statement forces Build-NET to always run after build-frontend and build-vue when neither job failed (but can be skipped)
      # always() 
       #&& needs.Build-frontend.result != 'failed' 
