@@ -105,4 +105,7 @@ jobs:
     needs: [Sync-and-push-to-cloud]
     runs-on: [self-hosted, axendo]
     steps:
-      - uses: AxendoNL/sync-cleanup-action@umbraco-v9
+      - name: Delete sync folder en files
+        uses: AxendoNL/sync-cleanup-action@umbraco-v9
+      - name: Delete GitHub workspace
+        run: Remove-Item -Recurse -Force ./*
