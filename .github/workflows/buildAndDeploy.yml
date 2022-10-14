@@ -83,3 +83,12 @@ jobs:
         project-name: ${{ inputs.project-name }}
         build-configuration: ${{ inputs.build-configuration }}
         csproj-path: ${{ inputs.csproj-path }}
+  
+  Cleanup:
+    name: cleanup files
+    needs: Build-NET
+    if: always()
+    runs-on: [self-hosted, axendo]
+    steps:
+    - name: Delete GitHub workspace
+      run: Remove-Item -Recurse -Force ./*

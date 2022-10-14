@@ -92,7 +92,6 @@ jobs:
     if: github.ref_name == 'master'
     needs: Build-NET
     runs-on: [self-hosted, axendo]
-
     steps:
     - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v8
       with:
@@ -103,4 +102,7 @@ jobs:
     needs: [Sync-and-push-to-cloud]
     runs-on: [self-hosted, axendo]
     steps:
-      - uses: AxendoNL/sync-cleanup-action@umbraco-v8
+      - name: Delete sync folder en files
+        uses: AxendoNL/sync-cleanup-action@umbraco-v8
+      - name: Delete GitHub workspace
+        run: Remove-Item -Recurse -Force ./*
