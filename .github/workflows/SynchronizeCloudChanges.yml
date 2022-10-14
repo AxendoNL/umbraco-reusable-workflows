@@ -22,4 +22,7 @@ jobs:
     needs: Synchronize
     runs-on: [self-hosted, axendo]
     steps:
+      - name: Delete sync folder en files
       - uses: AxendoNL/sync-cleanup-action@master
+      - name: Delete GitHub workspace
+        run: Remove-Item -Recurse -Force ./*
