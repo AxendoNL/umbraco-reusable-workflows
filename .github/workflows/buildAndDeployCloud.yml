@@ -1,4 +1,4 @@
-name: Build and deploy changes Umbraco V8.1 - Cloud
+name: Build and deploy changes Umbraco V8.x - Cloud
 
 on:
   workflow_call:
@@ -30,6 +30,10 @@ on:
         type: string
     secrets:
       cloud-repository-url:
+        required: true
+      umbraco-cloud-username:
+        required: true
+      umbraco-cloud-password:
         required: true
 
 ### Some environment variables to ease use and keep oversight        
@@ -95,7 +99,7 @@ jobs:
     steps:
     - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v8
       with:
-        cloud-repository-url: ${{secrets.cloud-repository-url}}
+        cloud-repository-url: 'https://${{secrets.umbraco-cloud-username}}:${{secrets.umbraco-cloud-password}}@${{secrets.cloud-repository-url}}'
 
   cleanup:
     if: ${{ always() }}
