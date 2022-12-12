@@ -31,6 +31,10 @@ on:
     secrets:
       cloud-repository-url:
         required: true
+      umbraco-cloud-username:
+        required: true
+      umbraco-cloud-password:
+        required: true
         
 ### Some environment variables to ease use and keep oversight         
 env:
@@ -96,7 +100,7 @@ jobs:
     steps:
     - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v9
       with:
-        cloud-repository-url: ${{secrets.cloud-repository-url}}
+        cloud-repository-url: 'https://${{secrets.umbraco-cloud-username}}:${{secrets.umbraco-cloud-password}}@${{secrets.cloud-repository-url}}'
         from-dir: ./
         to-dir: ../cloud-repository
 

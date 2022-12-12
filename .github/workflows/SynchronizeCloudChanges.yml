@@ -5,6 +5,10 @@ on:
     secrets:
       cloud-repository-url:
         required: true
+      umbraco-cloud-username:
+        required: true
+      umbraco-cloud-password:
+        required: true
 
 jobs:
   Synchronize:
@@ -14,7 +18,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: AxendoNL/sync-changes-from-cloud-action@umbraco-v9
         with:
-          cloud-repository-url: ${{secrets.cloud-repository-url}}
+          cloud-repository-url: 'https://${{secrets.umbraco-cloud-username}}:${{secrets.umbraco-cloud-password}}@${{secrets.cloud-repository-url}}'
           from-dir: ../cloud-repository
           to-dir: ./
   Cleanup:
