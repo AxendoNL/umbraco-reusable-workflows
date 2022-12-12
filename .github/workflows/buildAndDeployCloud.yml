@@ -1,12 +1,18 @@
-name: Build and deploy changes Umbraco V9 - Cloud
+name: Build and deploy changes Umbraco V9.1 - Cloud
 
 on:
   workflow_call:
     inputs:
       frontend-directory:
-        required: true
+        required: false
         type: string
       cd-path:
+        required: false
+        type: string
+      vue-directory:
+        required: false
+        type: string
+      cd-path-vue:
         required: false
         type: string
       organization-name:
@@ -25,28 +31,51 @@ on:
     secrets:
       cloud-repository-url:
         required: true
+        
+### Some environment variables to ease use and keep oversight         
+env:
+  app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
 
 jobs:
   Checkout-source:
     name: Checkout source code
     runs-on: [self-hosted, axendo]
     steps:
-    - uses: actions/checkout@v2
+    - name: git configure long path
+      run: git config --global core.longpaths true
+    - uses: actions/checkout@v3
+      with: 
+        fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
 
   Build-frontend:
+    if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Checkout-source
     runs-on: [self-hosted, axendo]
     steps:
       - name: build the frontend
-        uses: AxendoNL/build-frontend-action@umbraco-v9
+        uses: AxendoNL/build-frontend-action@umbraco-v9.1
         with:
           frontend-directory: ${{ inputs.frontend-directory }}
           cd-path: ${{ inputs.cd-path }}
+          app-path: ${{ env.app-path }}
+
+  Build-vue:
+    if:  ${{ inputs.vue-directory }}
+    name: Build Vue
+    needs: Build-frontend         
+    runs-on: [self-hosted, axendo]
+    steps:
+      - name: Build vue apps
+        uses: AxendoNL/build-vue-action@umbraco-v9.1
+        with:
+          vue-directory: ${{ inputs.vue-directory }}
+          cd-path-vue: ${{ inputs.cd-path-vue }}
+          app-path: ${{ env.app-path }}
 
   Build-NET:
     name: Build & Publish .NET
-    needs: Build-frontend
+    needs: Build-vue
     if: github.ref_name != 'master'
     runs-on: [self-hosted, axendo]
     steps:
@@ -61,7 +90,7 @@ jobs:
   Sync-and-push-to-cloud: 
     name: Sync and push to cloud
     if: github.ref_name == 'master'
-    needs: Build-frontend
+    needs: Build-vue
     runs-on: [self-hosted, axendo]
 
     steps:
@@ -76,4 +105,7 @@ jobs:
     needs: [Sync-and-push-to-cloud]
     runs-on: [self-hosted, axendo]
     steps:
-      - uses: AxendoNL/sync-cleanup-action@umbraco-v9
+      - name: Delete sync folder en files
+        uses: AxendoNL/sync-cleanup-action@umbraco-v9
+      - name: Delete GitHub workspace
+        run: Remove-Item -Recurse -Force ./*
