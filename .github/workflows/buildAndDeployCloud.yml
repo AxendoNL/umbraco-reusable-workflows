@@ -83,19 +83,20 @@ jobs:
         project-name: ${{ inputs.project-name }}
         build-configuration: ${{ inputs.build-configuration }}
         csproj-path: ${{ inputs.csproj-path }}
+        token: ${{ secrets.NUGET_PAT }}
 
   Sync-and-push-to-cloud: 
     name: Sync and push to cloud
     if: github.ref_name == 'master'
     needs: Build-Vue
     runs-on: [self-hosted, axendo]
-
     steps:
     - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v9
       with:
         cloud-repository-url: 'https://${{secrets.UMBRACO_CLOUD_USERNAME}}:${{secrets.UMBRACO_CLOUD_PASSWORD}}@${{secrets.CLOUD_REPOSITORY_URL}}'
         from-dir: ./
         to-dir: ../cloud-repository
+        token: ${{ secrets.NUGET_PAT }}
 
   cleanup:
     if: ${{ always() }}
