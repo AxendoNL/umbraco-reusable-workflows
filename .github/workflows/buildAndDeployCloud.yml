@@ -94,11 +94,11 @@ jobs:
     - name: Add GitHub PAT to nuget.config
       run: (Get-Content -path .\NuGet.config -Raw) -replace '{PAT}','${{ secrets.NUGET_PAT }}' | Set-Content -Path .\NuGet.config
       shell: powershell
-    # - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v9
-    #   with:
-    #     cloud-repository-url: 'https://${{secrets.UMBRACO_CLOUD_USERNAME}}:${{secrets.UMBRACO_CLOUD_PASSWORD}}@${{secrets.CLOUD_REPOSITORY_URL}}'
-    #     from-dir: ./
-    #     to-dir: ../cloud-repository
+    - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v9
+      with:
+        cloud-repository-url: 'https://${{secrets.UMBRACO_CLOUD_USERNAME}}:${{secrets.UMBRACO_CLOUD_PASSWORD}}@${{secrets.CLOUD_REPOSITORY_URL}}'
+        from-dir: ./
+        to-dir: ../cloud-repository
 
   cleanup:
     if: ${{ always() }}
