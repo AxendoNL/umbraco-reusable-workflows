@@ -82,6 +82,7 @@ jobs:
         project-name: ${{ inputs.project-name }}
         build-configuration: ${{ inputs.build-configuration }}
         csproj-path: ${{ inputs.csproj-path }}
+        token: ${{ secrets.NUGET_PAT }}
   
   Cleanup:
     name: cleanup files
