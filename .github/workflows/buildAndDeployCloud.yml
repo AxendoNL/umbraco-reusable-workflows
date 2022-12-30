@@ -28,13 +28,6 @@ on:
       csproj-path:
         required: true
         type: string
-    secrets:
-      cloud-repository-url:
-        required: true
-      umbraco-cloud-username:
-        required: true
-      umbraco-cloud-password:
-        required: true
 
 ### Some environment variables to ease use and keep oversight        
 env:
@@ -90,6 +83,7 @@ jobs:
         project-name: ${{ inputs.project-name }}
         build-configuration: ${{ inputs.build-configuration }}
         csproj-path: ${{ inputs.csproj-path }}
+        token: ${{ secrets.NUGET_PAT }}
 
   Sync-and-push-to-cloud: 
     name: Sync and push to cloud
@@ -97,9 +91,12 @@ jobs:
     needs: Build-NET
     runs-on: [self-hosted, axendo]
     steps:
+    - name: Add GitHub PAT to nuget.config
+      run: (Get-Content -path .\NuGet.config -Raw) -replace '{PAT}','${{ secrets.NUGET_PAT }}' | Set-Content -Path .\NuGet.config
+      shell: powershell
     - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v8
       with:
-        cloud-repository-url: 'https://${{secrets.umbraco-cloud-username}}:${{secrets.umbraco-cloud-password}}@${{secrets.cloud-repository-url}}'
+        cloud-repository-url: 'https://${{secrets.UMBRACO_CLOUD_USERNAME}}:${{secrets.UMBRACO_CLOUD_PASSWORD}}@${{secrets.CLOUD_REPOSITORY_URL}}'
 
   cleanup:
     if: ${{ always() }}
