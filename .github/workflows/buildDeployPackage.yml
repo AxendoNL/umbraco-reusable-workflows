@@ -51,7 +51,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - name: build the frontend
-        uses: AxendoNL/build-frontend-action@umbraco-v10
+        uses: AxendoNL/build-frontend-action@v10
         with:
           frontend-directory: ${{ inputs.frontend-directory }}
           cd-path: ${{ inputs.cd-path }}
@@ -64,7 +64,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - name: Build vue apps
-        uses: AxendoNL/build-vue-action@umbraco-v10
+        uses: AxendoNL/build-vue-action@v10
         with:
           vue-directory: ${{ inputs.vue-directory }}
           cd-path-vue: ${{ inputs.cd-path-vue }}
@@ -76,7 +76,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - name: Setup .NET
-        uses: AxendoNL/dotnet-package-action@umbraco-v10
+        uses: AxendoNL/dotnet-package-action@v10
         with:
           organization-name: ${{ inputs.organization-name }}
           project-name: ${{ inputs.project-name }}
