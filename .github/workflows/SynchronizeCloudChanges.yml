@@ -20,7 +20,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - uses: actions/checkout@v3
-      - uses: AxendoNL/sync-changes-from-cloud-action@umbraco-v8
+      - uses: AxendoNL/sync-changes-from-cloud-action@v8.1
         with:
           cloud-repository-url: 'https://${{secrets.umbraco-cloud-username}}:${{secrets.umbraco-cloud-password}}@${{secrets.cloud-repository-url}}'
           web-directory: ${{inputs.web-directory}}
@@ -29,4 +29,4 @@ jobs:
     needs: Synchronize
     runs-on: [self-hosted, axendo]
     steps:
-      - uses: AxendoNL/sync-cleanup-action@umbraco-v8
+      - uses: AxendoNL/sync-cleanup-action@v8

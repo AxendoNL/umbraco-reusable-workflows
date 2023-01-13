@@ -52,7 +52,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - name: build the frontend
-        uses: AxendoNL/build-frontend-action@umbraco-v8.1
+        uses: AxendoNL/build-frontend-action@v8.1
         with:
           frontend-directory: ${{ inputs.frontend-directory }}
           cd-path: ${{ inputs.cd-path }}
@@ -65,7 +65,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - name: Build vue apps
-        uses: AxendoNL/build-vue-action@umbraco-v8.1
+        uses: AxendoNL/build-vue-action@v8.1
         with:
           vue-directory: ${{ inputs.vue-directory }}
           cd-path-vue: ${{ inputs.cd-path-vue }}
@@ -77,7 +77,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
     - name: Setup .NET
-      uses: AxendoNL/dotnet-build-action@umbraco-v8
+      uses: AxendoNL/dotnet-build-action@v8
       with:
         organization-name: ${{ inputs.organization-name }}
         project-name: ${{ inputs.project-name }}
@@ -94,7 +94,7 @@ jobs:
     - name: Add GitHub PAT to nuget.config
       run: (Get-Content -path .\NuGet.config -Raw) -replace '{PAT}','${{ secrets.NUGET_PAT }}' | Set-Content -Path .\NuGet.config
       shell: powershell
-    - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v8
+    - uses: AxendoNL/sync-changes-to-cloud-action@v8
       with:
         cloud-repository-url: 'https://${{secrets.UMBRACO_CLOUD_USERNAME}}:${{secrets.UMBRACO_CLOUD_PASSWORD}}@${{secrets.CLOUD_REPOSITORY_URL}}'
 
@@ -104,6 +104,6 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - name: Delete sync folder en files
-        uses: AxendoNL/sync-cleanup-action@umbraco-v8
+        uses: AxendoNL/sync-cleanup-action@v8
       - name: Delete GitHub workspace
         run: Remove-Item -Recurse -Force ./*
