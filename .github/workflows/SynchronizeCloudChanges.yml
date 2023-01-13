@@ -15,8 +15,8 @@ jobs:
     name: Synchronize
     runs-on: [self-hosted, axendo]
     steps:
-      - uses: actions/checkout@v2
-      - uses: AxendoNL/sync-changes-from-cloud-action@umbraco-v9
+      - uses: actions/checkout@v3
+      - uses: AxendoNL/sync-changes-from-cloud-action@v9.1
         with:
           cloud-repository-url: 'https://${{secrets.umbraco-cloud-username}}:${{secrets.umbraco-cloud-password}}@${{secrets.cloud-repository-url}}'
           from-dir: ../cloud-repository
@@ -26,4 +26,4 @@ jobs:
     needs: Synchronize
     runs-on: [self-hosted, axendo]
     steps:
-      - uses: AxendoNL/sync-cleanup-action@master
+      - uses: AxendoNL/sync-cleanup-action@v9
