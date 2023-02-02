@@ -9,6 +9,8 @@ on:
         required: true
       umbraco-cloud-password:
         required: true
+      umbraco-cloud-token:
+        required: true
 
 jobs:
   Synchronize:
@@ -21,6 +23,7 @@ jobs:
           cloud-repository-url: 'https://${{secrets.umbraco-cloud-username}}:${{secrets.umbraco-cloud-password}}@${{secrets.cloud-repository-url}}'
           from-dir: ../cloud-repository
           to-dir: ./
+          token: secrets.umbraco-cloud-token
   Cleanup:
     if: ${{ always() }}
     needs: Synchronize
