@@ -68,7 +68,7 @@ jobs:
         working-directory: ${{ inputs.frontend-directory }}
         shell: powershell
       - name: Run webpack production build
-        run: npm run build-production
+        run: npm run build:production
         working-directory: ${{ inputs.frontend-directory }}
         shell: powershell
           
