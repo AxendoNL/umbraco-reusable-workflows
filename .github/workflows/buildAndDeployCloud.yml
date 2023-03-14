@@ -1,4 +1,4 @@
-name: Build and deploy changes Umbraco V10 - Cloud
+name: Build and deploy changes Umbraco V11 - Cloud
 
 on:
   workflow_call:
@@ -44,18 +44,33 @@ jobs:
       with: 
         fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
 
+  # Build-frontend:
+  #   if: ${{ inputs.frontend-directory }}
+  #   name: Build Frontend
+  #   needs: Checkout-source
+  #   runs-on: [self-hosted, axendo]
+  #   steps:
+  #     - name: build the frontend
+  #       uses: AxendoNL/build-frontend-action@v10
+  #       with:
+  #         frontend-directory: ${{ inputs.frontend-directory }}
+  #         cd-path: ${{ inputs.cd-path }}
+  #         app-path: ${{ env.app-path }}
+
   Build-frontend:
     if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Checkout-source
     runs-on: [self-hosted, axendo]
     steps:
-      - name: build the frontend
-        uses: AxendoNL/build-frontend-action@v10
-        with:
-          frontend-directory: ${{ inputs.frontend-directory }}
-          cd-path: ${{ inputs.cd-path }}
-          app-path: ${{ env.app-path }}
+      - name: npm install
+        run: npm install
+        working-directory: ${{ inputs.frontend-directory }}
+        shell: powershell
+      - name: Run webpack production build
+        run: npm run build-production
+        working-directory: ${{ inputs.frontend-directory }}
+        shell: powershell
           
   Build-vue:
     if:  ${{ inputs.vue-directory }}
