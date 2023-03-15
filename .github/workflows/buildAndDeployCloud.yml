@@ -44,33 +44,17 @@ jobs:
       with: 
         fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
 
-  # Build-frontend:
-  #   if: ${{ inputs.frontend-directory }}
-  #   name: Build Frontend
-  #   needs: Checkout-source
-  #   runs-on: [self-hosted, axendo]
-  #   steps:
-  #     - name: build the frontend
-  #       uses: AxendoNL/build-frontend-action@v10
-  #       with:
-  #         frontend-directory: ${{ inputs.frontend-directory }}
-  #         cd-path: ${{ inputs.cd-path }}
-  #         app-path: ${{ env.app-path }}
-
   Build-frontend:
     if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Checkout-source
     runs-on: [self-hosted, axendo]
     steps:
-      - name: npm install
-        run: npm install
-        working-directory: ${{ inputs.frontend-directory }}
-        shell: powershell
-      - name: Run webpack production build
-        run: npm run build:production
-        working-directory: ${{ inputs.frontend-directory }}
-        shell: powershell
+      - name: Build frontend with Webpack
+        uses: AxendoNL/webpack-action@master
+        with:
+          directory: ${{ inputs.frontend-directory }}
+          output-folder: '${{ env.app-path }}\\wwwroot\\assets'
           
   Build-vue:
     if:  ${{ inputs.vue-directory }}
@@ -92,7 +76,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
     - name: Setup .NET
-      uses: AxendoNL/dotnet-build-action@v10
+      uses: AxendoNL/dotnet-build-action@v11
       with:
         organization-name: ${{ inputs.organization-name }}
         project-name: ${{ inputs.project-name }}
