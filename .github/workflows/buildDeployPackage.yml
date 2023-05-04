@@ -51,7 +51,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - name: build the frontend
-        uses: AxendoNL/build-frontend-action@v8.1
+        uses: AxendoNL/build-frontend-action@v8.2.1
         with:
           frontend-directory: ${{ inputs.frontend-directory }}
           cd-path: ${{ inputs.cd-path }}
@@ -64,7 +64,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - name: Build vue apps
-        uses: AxendoNL/build-vue-action@v8.1
+        uses: AxendoNL/build-vue-action@v8.2
         with:
           vue-directory: ${{ inputs.vue-directory }}
           cd-path-vue: ${{ inputs.cd-path-vue }}
