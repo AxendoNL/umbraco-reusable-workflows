@@ -51,7 +51,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - name: build the frontend
-        uses: AxendoNL/build-frontend-action@v8.2
+        uses: AxendoNL/build-frontend-action@v8.2.1
         with:
           frontend-directory: ${{ inputs.frontend-directory }}
           cd-path: ${{ inputs.cd-path }}
