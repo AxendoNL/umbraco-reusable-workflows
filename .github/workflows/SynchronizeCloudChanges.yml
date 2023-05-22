@@ -2,13 +2,6 @@ name: Synchronize cloud changes
 
 on:
   workflow_call:
-    secrets:
-      cloud-repository-url:
-        required: true
-      umbraco-cloud-username:
-        required: true
-      umbraco-cloud-password:
-        required: true
 
 jobs:
   Synchronize:
