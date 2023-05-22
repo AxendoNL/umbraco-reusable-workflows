@@ -21,6 +21,7 @@ jobs:
           cloud-repository-url:  'https://${{secrets.umbraco-cloud-username}}:${{secrets.umbraco-cloud-password}}@${{secrets.cloud-repository-url}}'
           from-dir: ../cloud-repository
           to-dir: ./
+          token: ${{ secrets.NUGET_PAT }}
   Cleanup:
     if: ${{ always() }}
     needs: Synchronize
