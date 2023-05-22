@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: AxendoNL/sync-changes-from-cloud-action@v9.1
         with:
-          cloud-repository-url:  'https://${{secrets.umbraco-cloud-username}}:${{secrets.umbraco-cloud-password}}@${{secrets.cloud-repository-url}}'
+          cloud-repository-url:  'https://${{secrets.UMBRACO_CLOUD_USERNAME}}:${{secrets.UMBRACO_CLOUD_PASSWORD}}@${{secrets.CLOUD_REPOSITORY_URL}}'
           from-dir: ../cloud-repository
           to-dir: ./
           token: ${{ secrets.NUGET_PAT }}
