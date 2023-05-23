@@ -2,6 +2,10 @@ name: Synchronize cloud changes
 
 on:
   workflow_call:
+  
+### Some environment variables to ease use and keep oversight        
+env:
+  app-test: 'test value'
 
 jobs:
   Synchronize:
