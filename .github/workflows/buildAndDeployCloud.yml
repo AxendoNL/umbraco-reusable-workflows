@@ -34,14 +34,6 @@ env:
   app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
 
 jobs:
-  Load-VARS: # After this all variables in vars will be available on the environment in actions, usage: ${{ env.WWWROOT_PATH }}
-    name: Load vars into environment.
-    runs-on: [self-hosted, axendo]
-    steps:
-    - uses: oNaiPs/secrets-to-env-action@v1
-      with:
-        secrets: ${{ toJSON(vars) }}
-
   Checkout-source:
     name: Checkout source code
     runs-on: [self-hosted, axendo]
