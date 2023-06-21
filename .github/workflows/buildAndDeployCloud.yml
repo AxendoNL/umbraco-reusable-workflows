@@ -104,7 +104,7 @@ jobs:
         to-dir: ../cloud-repository
 
   cleanup:
-    if: ${{ always() }}
+    if: always() && vars.SKIP_CLEANUP != 'true'
     needs: [Sync-and-push-to-cloud]
     runs-on: [self-hosted, axendo]
     steps:
