@@ -1,0 +1,123 @@
+name: Build and deploy changes Umbraco V11
+
+on:
+  workflow_call:
+    inputs:
+      frontend-directory:
+        required: false
+        type: string
+      vue-directory:
+        required: false
+        type: string
+      organization-name:
+        required: true
+        type: string
+      project-name:
+        required: true
+        type: string
+      build-configuration:
+        required: true
+        default: 'release'
+        type: string
+      # csproj-path:
+      #   required: true
+      #   type: string
+
+### Some environment variables to ease use and keep oversight        
+env:
+  app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
+
+jobs:
+  Checkout-source:
+    name: Checkout source code
+    runs-on: [self-hosted, axendo]
+    steps:
+    - name: git configure long path
+      run: git config --global core.longpaths true
+    - uses: actions/checkout@v3
+      with: 
+        fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
+
+  Build-frontend:
+    if: ${{ inputs.frontend-directory }}
+    name: Build Frontend
+    needs: Checkout-source
+    runs-on: [self-hosted, axendo]
+    steps:
+      - name: Build frontend with Webpack
+        uses: AxendoNL/webpack-action@v1.0.0
+        with:
+          directory: ${{ inputs.frontend-directory }}
+          output-folder: '${{ env.app-path }}\\wwwroot\\assets'
+          
+  Build-vue:
+    if:  ${{ inputs.vue-directory }}
+    name: Build Vue
+    needs: Build-frontend         
+    runs-on: [self-hosted, axendo]
+    steps:
+      - name: Build vue apps
+        uses: AxendoNL/webpack-action@v1.0.0
+        with:
+          directory: ${{ inputs.vue-directory }}
+          output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
+
+  Build-dotnet:
+    name: Build .NET Core
+    needs: Build-vue
+    runs-on: [self-hosted, axendo]
+    steps:
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.x'
+          include-prerelease: true
+      - name: Add GitHub PAT to nuget.config
+        run: (Get-Content -path .\NuGet.config -Raw) -replace '{PAT}','${{ secrets.NUGET_PAT }}' | Set-Content -Path .\NuGet.config
+        shell: powershell
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
+      #substitute production appsettings entries to appsettings json file
+      - name: App Settings Variable Substitution
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: './**/appsettings.json'
+        env:
+          Umbraco.CMS.RuntimeMinification.version: ${{github.run_number}}
+      - name: dotnet publish
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+
+  Upload-artifact:
+    needs: Build-dotnet
+    runs-on: [self-hosted]
+    steps:
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v3
+        with:
+          name: .net-app
+          path: ${{env.DOTNET_ROOT}}/myapp
+
+
+
+  # Build-NET:
+  #   name: Build & Publish .NET
+  #   needs: Build-vue
+  #   runs-on: [self-hosted, axendo]
+  #   steps:
+  #   - name: Setup .NET
+  #     uses: AxendoNL/dotnet-build-action@v11
+  #     with:
+  #       organization-name: ${{ inputs.organization-name }}
+  #       project-name: ${{ inputs.project-name }}
+  #       build-configuration: ${{ inputs.build-configuration }}
+  #       csproj-path: ${{ inputs.csproj-path }}
+  #       token: ${{ secrets.NUGET_PAT }}
+
+  # Cleanup:
+  #   name: cleanup files
+  #   needs: Build-NET
+  #   if: always()
+  #   runs-on: [self-hosted, axendo]
+  #   steps:
+  #   - name: Delete GitHub workspace
+  #     run: Remove-Item -Recurse -Force ./*
