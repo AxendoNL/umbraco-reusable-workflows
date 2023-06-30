@@ -19,9 +19,9 @@ on:
         required: true
         default: 'release'
         type: string
-      # csproj-path:
-      #   required: true
-      #   type: string
+      csproj-path:
+        required: true
+        type: string
 
 ### Some environment variables to ease use and keep oversight        
 env:
@@ -85,7 +85,7 @@ jobs:
         env:
           Umbraco.CMS.RuntimeMinification.version: ${{github.run_number}}
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish ${{ inputs.csproj-path }} -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
   Upload-artifact:
     needs: Build-dotnet
