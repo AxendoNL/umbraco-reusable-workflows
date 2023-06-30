@@ -85,7 +85,7 @@ jobs:
         env:
           Umbraco.CMS.RuntimeMinification.version: ${{github.run_number}}
       - name: dotnet publish
-        run: dotnet publish ${{ inputs.csproj-path }} -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish ${{ inputs.csproj-path }} -c Release -o ./myapp
 
   Upload-artifact:
     needs: Build-dotnet
@@ -95,7 +95,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ./myapp
 
 
 
