@@ -72,7 +72,7 @@ jobs:
           secrets: ${{ toJSON(vars) }}
           include: VUE_*
       - name: Build vue apps
-        uses: AxendoNL/build-vue-action@v10.1
+        uses: AxendoNL/build-vue-action@v10.2
         with:
           vue-directory: ${{ inputs.vue-directory }}
           cd-path-vue: ${{ inputs.cd-path-vue }}
