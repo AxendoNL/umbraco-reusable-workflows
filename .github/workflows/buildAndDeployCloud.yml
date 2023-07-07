@@ -50,7 +50,7 @@ jobs:
     needs: Checkout-source
     runs-on: [self-hosted, axendo]
     steps:
-      - uses: oNaiPs/secrets-to-env-action@v1 # Load VARS
+      - uses: oNaiPs/secrets-to-env-action@v1.3 # Load VARS
         with:
           secrets: ${{ toJSON(vars) }}
           include: FRONTEND_*
@@ -67,7 +67,7 @@ jobs:
     needs: Build-frontend         
     runs-on: [self-hosted, axendo]
     steps:
-      - uses: oNaiPs/secrets-to-env-action@v1 # Load VARS
+      - uses: oNaiPs/secrets-to-env-action@v1.3 # Load VARS
         with:
           secrets: ${{ toJSON(vars) }}
           include: VUE_*
@@ -102,7 +102,7 @@ jobs:
     - name: Add GitHub PAT to nuget.config
       run: (Get-Content -path .\NuGet.config -Raw) -replace '{PAT}','${{ secrets.NUGET_PAT }}' | Set-Content -Path .\NuGet.config
       shell: powershell
-    - uses: oNaiPs/secrets-to-env-action@v1 # Load VARS
+    - uses: oNaiPs/secrets-to-env-action@v1.3 # Load VARS
       with:
         secrets: ${{ toJSON(vars) }}
     - uses: AxendoNL/sync-changes-to-cloud-action@umbraco-v9
