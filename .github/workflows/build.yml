@@ -25,7 +25,7 @@ on:
       runner-platform:
         required: false
         type: string
-        default: 'self-hosted, axendo'
+        default: 'self-hosted'
 
 ### Some environment variables to ease use and keep oversight        
 env:
@@ -36,6 +36,8 @@ jobs:
     name: Checkout source code
     runs-on: ["${{ inputs.runner-platform }}"]
     steps:
+    - name: configure safe dir
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
     - name: git configure long path
       run: git config --global core.longpaths true
     - uses: actions/checkout@v3
