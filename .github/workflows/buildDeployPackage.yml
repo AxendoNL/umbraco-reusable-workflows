@@ -50,8 +50,12 @@ jobs:
     needs: Checkout-source
     runs-on: [self-hosted, axendo]
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1 # Load VARS
+        with:
+          secrets: ${{ toJSON(vars) }}
+          include: FRONTEND_*
       - name: build the frontend
-        uses: AxendoNL/build-frontend-action@v10
+        uses: AxendoNL/build-frontend-action@v10.1
         with:
           frontend-directory: ${{ inputs.frontend-directory }}
           cd-path: ${{ inputs.cd-path }}
@@ -63,8 +67,12 @@ jobs:
     needs: Build-frontend         
     runs-on: [self-hosted, axendo]
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1 # Load VARS
+        with:
+          secrets: ${{ toJSON(vars) }}
+          include: VUE_*
       - name: Build vue apps
-        uses: AxendoNL/build-vue-action@v10.1
+        uses: AxendoNL/build-vue-action@v10.2
         with:
           vue-directory: ${{ inputs.vue-directory }}
           cd-path-vue: ${{ inputs.cd-path-vue }}
@@ -97,6 +105,15 @@ jobs:
         with:
           name: ${{ inputs.organization-name }}-${{ inputs.project-name }}-${{ github.sha }}
           path: "${{ github.workspace }}/Archive/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}/Archive.zip"
-      ### Cleanup
-      - name: Remove Config and Json files
-        run: Remove-Item '${{ github.workspace }}\Archive' -Recurse 
+      
+        
+  Cleanup:
+    if: always() && vars.SKIP_CLEANUP != 'true'
+    name: cleanup files
+    needs: Build-NET
+    runs-on: [self-hosted, axendo]
+    steps:
+    - name: Delete GitHub workspace
+      run: Remove-Item -Recurse -Force ./*
+    - name: Remove Config and Json files
+      run: Remove-Item '${{ github.workspace }}\Archive' -Recurse 
