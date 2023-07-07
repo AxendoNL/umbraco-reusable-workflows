@@ -55,7 +55,7 @@ jobs:
           secrets: ${{ toJSON(vars) }}
           include: FRONTEND_*
       - name: build the frontend
-        uses: AxendoNL/build-frontend-action@v10
+        uses: AxendoNL/build-frontend-action@v10.1
         with:
           frontend-directory: ${{ inputs.frontend-directory }}
           cd-path: ${{ inputs.cd-path }}
