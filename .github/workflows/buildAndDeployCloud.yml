@@ -50,6 +50,10 @@ jobs:
     needs: Checkout-source
     runs-on: [self-hosted, axendo]
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1 # Load VARS
+        with:
+          secrets: ${{ toJSON(vars) }}
+          include: FRONTEND_*
       - name: build the frontend
         uses: AxendoNL/build-frontend-action@v10
         with:
@@ -63,6 +67,10 @@ jobs:
     needs: Build-frontend         
     runs-on: [self-hosted, axendo]
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1 # Load VARS
+        with:
+          secrets: ${{ toJSON(vars) }}
+          include: VUE_*
       - name: Build vue apps
         uses: AxendoNL/build-vue-action@v10.1
         with:
