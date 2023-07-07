@@ -25,7 +25,7 @@ on:
       runner-platform:
         required: false
         type: string
-        default: '[self-hosted, axendo]'
+        default: 'self-hosted, axendo'
 
 ### Some environment variables to ease use and keep oversight        
 env:
@@ -34,7 +34,7 @@ env:
 jobs:
   Checkout-source:
     name: Checkout source code
-    runs-on: ${{ inputs.runner-platform }}
+    runs-on: ["${{ inputs.runner-platform }}"]
     steps:
     - name: git configure long path
       run: git config --global core.longpaths true
@@ -46,7 +46,7 @@ jobs:
     if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Checkout-source
-    runs-on: ${{ inputs.runner-platform }}
+    runs-on: ["${{ inputs.runner-platform }}"]
     steps:
       - name: Build frontend with Webpack
         uses: AxendoNL/webpack-action@v1.0.0
@@ -58,7 +58,7 @@ jobs:
     if:  ${{ inputs.vue-directory }}
     name: Build Vue
     needs: Build-frontend         
-    runs-on: ${{ inputs.runner-platform }}
+    runs-on: ["${{ inputs.runner-platform }}"]
     steps:
       - name: Build vue apps
         uses: AxendoNL/webpack-action@v1.0.0
@@ -69,7 +69,7 @@ jobs:
   Build-dotnet:
     name: Build .NET Core
     needs: Build-vue
-    runs-on: ${{ inputs.runner-platform }}
+    runs-on: ["${{ inputs.runner-platform }}"]
     steps:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v3
@@ -93,7 +93,7 @@ jobs:
 
   Upload-artifact:
     needs: Build-dotnet
-    runs-on: ${{ inputs.runner-platform }}
+    runs-on: ["${{ inputs.runner-platform }}"]
     steps:
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
