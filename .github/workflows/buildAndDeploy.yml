@@ -44,6 +44,10 @@ jobs:
     needs: Checkout-source
     runs-on: [self-hosted, axendo]
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1.3 # Load VARS
+        with:
+          secrets: ${{ toJSON(vars) }}
+          include: FRONTEND_*
       - name: Build frontend with Webpack
         uses: AxendoNL/webpack-action@v1.0.0
         with:
@@ -56,6 +60,10 @@ jobs:
     needs: Build-frontend         
     runs-on: [self-hosted, axendo]
     steps:
+      - uses: oNaiPs/secrets-to-env-action@v1.3 # Load VARS
+        with:
+          secrets: ${{ toJSON(vars) }}
+          include: VUE_*
       - name: Build vue apps
         uses: AxendoNL/webpack-action@v1.0.0
         with:
@@ -65,6 +73,7 @@ jobs:
   Build-NET:
     name: Build & Publish .NET
     needs: Build-vue
+    if: always() && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     runs-on: [self-hosted, axendo]
     steps:
     - name: Setup .NET
@@ -77,9 +86,9 @@ jobs:
         token: ${{ secrets.NUGET_PAT }}
 
   Cleanup:
+    if: always() && vars.SKIP_CLEANUP != 'true'
     name: cleanup files
     needs: Build-NET
-    if: always()
     runs-on: [self-hosted, axendo]
     steps:
     - name: Delete GitHub workspace
