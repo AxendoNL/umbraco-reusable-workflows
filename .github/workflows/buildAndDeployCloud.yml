@@ -76,12 +76,8 @@ jobs:
     if: always() && github.ref_name != 'master' && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     runs-on: [self-hosted, axendo]
     steps:
-     - uses: oNaiPs/secrets-to-env-action@v1.3 # Load VARS
-      with:
-        secrets: ${{ toJSON(vars) }}
-        include: BUILD_NET_*
     - name: Setup .NET
-      uses: AxendoNL/dotnet-build-action@v9.beta
+      uses: AxendoNL/dotnet-build-action@v9
       with:
         organization-name: ${{ inputs.organization-name }}
         project-name: ${{ inputs.project-name }}
