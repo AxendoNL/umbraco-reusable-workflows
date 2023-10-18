@@ -82,7 +82,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - name: Setup .NET
-        uses: AxendoNL/dotnet-package-action@v10
+        uses: AxendoNL/dotnet-package-action@v12
         with:
           organization-name: ${{ inputs.organization-name }}
           project-name: ${{ inputs.project-name }}
