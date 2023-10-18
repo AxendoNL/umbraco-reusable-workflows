@@ -1,4 +1,4 @@
-name: Build and deploy changes Umbraco V11
+name: Build and deploy changes Umbraco V12
 
 on:
   workflow_call:

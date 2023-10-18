@@ -1,4 +1,4 @@
-name: Build Deploy Package Umbraco V10
+name: Build Deploy Package Umbraco V12
 
 on:
   workflow_call:
@@ -54,12 +54,11 @@ jobs:
         with:
           secrets: ${{ toJSON(vars) }}
           include: FRONTEND_*
-      - name: build the frontend
-        uses: AxendoNL/build-frontend-action@v10.1
+      - name: Build frontend with Webpack
+        uses: AxendoNL/webpack-action@v1.0.0
         with:
-          frontend-directory: ${{ inputs.frontend-directory }}
-          cd-path: ${{ inputs.cd-path }}
-          app-path: ${{ env.app-path }}
+          directory: ${{ inputs.frontend-directory }}
+          output-folder: '${{ env.app-path }}\\wwwroot\\assets'
           
   Build-vue:
     if:  ${{ inputs.vue-directory }}
@@ -72,11 +71,10 @@ jobs:
           secrets: ${{ toJSON(vars) }}
           include: VUE_*
       - name: Build vue apps
-        uses: AxendoNL/build-vue-action@v10.2
+        uses: AxendoNL/webpack-action@v1.0.0
         with:
-          vue-directory: ${{ inputs.vue-directory }}
-          cd-path-vue: ${{ inputs.cd-path-vue }}
-          app-path: ${{ env.app-path }}
+          directory: ${{ inputs.vue-directory }}
+          output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
 
   Build-NET:
     name: Build & Publish .NET
