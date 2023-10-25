@@ -59,6 +59,7 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '7.x'
+        include-prerelease: true
     - name: Add GitHub PAT to nuget.config
       run: (Get-Content -path .\NuGet.config -Raw) -replace '{PAT}','${{ secrets.NUGET_PAT }}' | Set-Content -Path .\NuGet.config
       shell: powershell
