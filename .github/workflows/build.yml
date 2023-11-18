@@ -40,7 +40,7 @@ jobs:
       run: git config --global --add safe.directory ${{ github.workspace }}
     - name: git configure long path
       run: git config --global core.longpaths true
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v3.6.0
       with: 
         fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
     - name: Build Frontend
@@ -56,7 +56,7 @@ jobs:
         directory: ${{ inputs.vue-directory }}
         output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v3.2.0
       with:
         dotnet-version: '7.x'
     - name: Add GitHub PAT to nuget.config
@@ -73,7 +73,7 @@ jobs:
     - name: Dotnet publish
       run: dotnet publish ${{ inputs.csproj-path }} -c Release -o ./myapp
     - name: Upload Artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.3
       with:
         name: .net-app
         path: |
