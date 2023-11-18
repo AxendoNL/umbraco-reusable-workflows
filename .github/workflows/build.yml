@@ -76,7 +76,11 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: .net-app
-        path: ./myapp
+        path: |
+          ./myapp
+          !./myapp/umbraco/Data
+          !./myapp/umbraco/Logs
+          !./myapp/wwwroot/media/*
 
   # Cleanup:
   #   name: cleanup files
