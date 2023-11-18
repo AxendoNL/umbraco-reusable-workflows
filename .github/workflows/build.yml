@@ -72,15 +72,26 @@ jobs:
         Umbraco.CMS.RuntimeMinification.version: ${{github.run_number}}
     - name: Dotnet publish
       run: dotnet publish ${{ inputs.csproj-path }} -c Release -o ./myapp
+    
+    - name: Archive artifact
+      run: tar -cvf net-app.tar ./myapp
+      shell: bash
+    
     - name: Upload Artifact
       uses: actions/upload-artifact@v3.1.3
       with:
         name: .net-app
-        path: |
-          ./myapp
-          !./myapp/umbraco/Data
-          !./myapp/umbraco/Logs
-          !./myapp/wwwroot/media/*
+        path: net-app.tar
+    
+    # - name: Upload Artifact
+    #   uses: actions/upload-artifact@v3.1.3
+    #   with:
+    #     name: .net-app
+    #     path: |
+    #       ./myapp
+    #       !./myapp/umbraco/Data
+    #       !./myapp/umbraco/Logs
+    #       !./myapp/wwwroot/media/*
 
   # Cleanup:
   #   name: cleanup files
