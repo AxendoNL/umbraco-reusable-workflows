@@ -7,12 +7,12 @@ on:
         required: true
         type: string
         default: 'self-hosted'
-      # app-name:
-      #   required: true
-      #   type: string
-      # slot-name:
-      #   required: true
-      #   type: string
+      organization-name:
+        required: true
+        type: string
+      project-name:
+        required: true
+        type: string
 
 jobs:
   Download-artifact:
@@ -26,6 +26,16 @@ jobs:
       - name: Extract artifact
         run: Expand-Archive -Path artifact.zip -DestinationPath ./todeploy
         shell: powershell
+      - name: Stop AppPool and Website in IIS
+        run: c:\.\DeploymentScripts\StopIISAppPool.ps1 "${{ inputs.organization-name }} ${{ inputs.project-name }} (${{ github.ref_name }})"
+        shell: powershell
+      - name: Copy artifact to website folder
+        run: Copy-Item -Path ./todeploy/myapp/* -Destination "/Sites/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}" -Recurse
+        shell: powershell
+      - name: Create AppPool and Website in IIS
+        run: C:\.\DeploymentScripts\CreateIISAppPoolAndWebsite.ps1 "${{ inputs.organization-name }} ${{ inputs.project-name }} (${{ github.ref_name }})" "${{ github.ref_name }}.${{ inputs.project-name }}.${{ inputs.organization-name }}" "C:\Sites\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}" ""
+        shell: powershell
+
 
 
   # Deploy:
