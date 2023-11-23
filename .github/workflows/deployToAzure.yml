@@ -19,18 +19,21 @@ jobs:
     name: Deploy to Azure
     runs-on: ["${{ inputs.runner-platform }}"]
     environment:
-      name: 'production'
+      name: ${{ inputs.slot-name }}
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3.0.2
         with:
           name: .net-app
+      - name: Extract artifact
+        run: Expand-Archive -Path artifact.zip -DestinationPath ./todeploy
+        shell: powershell
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ inputs.app-name }}
           slot-name: ${{ inputs.slot-name }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4630A39CA5BE4167AA2E5101E9E42902 }}
-          package: .
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0A90C1A1E0444CDC83324821A2FD4053 }}
+          package: ./todeploy
