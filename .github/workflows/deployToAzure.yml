@@ -31,9 +31,11 @@ jobs:
         shell: powershell
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ inputs.app-name }}
           slot-name: ${{ inputs.slot-name }}
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0A90C1A1E0444CDC83324821A2FD4053 }}
           package: ./todeploy/myapp
+          clean: true
+          restart: true
