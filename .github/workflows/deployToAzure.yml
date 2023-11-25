@@ -36,4 +36,4 @@ jobs:
           app-name: ${{ inputs.app-name }}
           slot-name: ${{ inputs.slot-name }}
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0A90C1A1E0444CDC83324821A2FD4053 }}
-          package: ./todeploy
+          package: ./todeploy/myapp
