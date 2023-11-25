@@ -35,25 +35,3 @@ jobs:
       - name: Create AppPool and Website in IIS
         run: C:\.\DeploymentScripts\CreateIISAppPoolAndWebsite.ps1 "${{ inputs.organization-name }} ${{ inputs.project-name }} (${{ github.ref_name }})" "${{ github.ref_name }}.${{ inputs.project-name }}.${{ inputs.organization-name }}" "C:\Sites\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}" ""
         shell: powershell
-
-
-
-  # Deploy:
-  #   name: Deploy to Azure
-  #   runs-on: ["${{ inputs.runner-platform }}"]
-  #   environment:
-  #     name: 'production'
-  #     url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-  #   steps:
-  #     - name: Download artifact from build job
-  #       uses: actions/download-artifact@v2
-  #       with:
-  #         name: .net-app
-  #     - name: Deploy to Azure Web App
-  #       id: deploy-to-webapp
-  #       uses: azure/webapps-deploy@v2
-  #       with:
-  #         app-name: ${{ inputs.app-name }}
-  #         slot-name: ${{ inputs.slot-name }}
-  #         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_4630A39CA5BE4167AA2E5101E9E42902 }}
-  #         package: .
