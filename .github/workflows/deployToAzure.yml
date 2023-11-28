@@ -13,6 +13,9 @@ on:
       slot-name:
         required: true
         type: string
+      publish-profile:
+        required: true
+        type: string
 
 jobs:
   Deploy:
@@ -35,7 +38,7 @@ jobs:
         with:
           app-name: ${{ inputs.app-name }}
           slot-name: ${{ inputs.slot-name }}
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_0A90C1A1E0444CDC83324821A2FD4053 }}
+          publish-profile: ${{ inputs.publish-profile }}
           package: ./todeploy/myapp
           clean: true
           restart: true
