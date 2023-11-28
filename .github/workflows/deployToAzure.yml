@@ -13,9 +13,9 @@ on:
       slot-name:
         required: true
         type: string
+    secrets:
       publish-profile:
         required: true
-        type: string
 
 jobs:
   Deploy:
@@ -38,7 +38,7 @@ jobs:
         with:
           app-name: ${{ inputs.app-name }}
           slot-name: ${{ inputs.slot-name }}
-          publish-profile: ${{ inputs.publish-profile }}
+          publish-profile: ${{ secrets.publish-profile }}
           package: ./todeploy/myapp
           clean: true
           restart: true
