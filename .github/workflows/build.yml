@@ -40,7 +40,7 @@ jobs:
       run: git config --global --add safe.directory ${{ github.workspace }}
     - name: git configure long path
       run: git config --global core.longpaths true
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4.1.1
       with: 
         fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
     - name: Build Frontend
@@ -56,9 +56,9 @@ jobs:
         directory: ${{ inputs.vue-directory }}
         output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '7.x'
+        dotnet-version: '8.x'
     - name: Add GitHub PAT to nuget.config
       run: (Get-Content -path .\NuGet.config -Raw) -replace '{PAT}','${{ secrets.NUGET_PAT }}' | Set-Content -Path .\NuGet.config
       shell: powershell
@@ -77,12 +77,3 @@ jobs:
       with:
         name: .net-app
         path: ./myapp
-
-  # Cleanup:
-  #   name: cleanup files
-  #   needs: Build-NET
-  #   if: always()
-  #   runs-on: [self-hosted, axendo]
-  #   steps:
-  #   - name: Delete GitHub workspace
-  #     run: Remove-Item -Recurse -Force ./*
