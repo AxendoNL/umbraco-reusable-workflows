@@ -72,6 +72,11 @@ jobs:
         Umbraco.CMS.RuntimeMinification.version: ${{github.run_number}}
     - name: Dotnet publish
       run: dotnet publish ${{ inputs.csproj-path }} -c Release -o ./myapp
+    
+    - name: Archive artifact
+      run: Compress-Archive -Path ./myapp -DestinationPath artifact.zip
+      shell: powershell
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v3.1.3
       with:
