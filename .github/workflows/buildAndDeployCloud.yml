@@ -49,7 +49,7 @@ jobs:
           secrets: ${{ toJSON(vars) }}
           include: FRONTEND_*
       - name: Build frontend with Webpack
-        uses: AxendoNL/webpack-action@master
+        uses: AxendoNL/webpack-action@v1.0.0
         with:
           directory: ${{ inputs.frontend-directory }}
           output-folder: '${{ env.app-path }}\\wwwroot\\assets'
@@ -65,7 +65,7 @@ jobs:
           secrets: ${{ toJSON(vars) }}
           include: VUE_*
       - name: Build vue apps
-        uses: AxendoNL/webpack-action@v1.1.0
+        uses: AxendoNL/webpack-action@v1.0.0
         with:
           directory: ${{ inputs.vue-directory }}
           output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
