@@ -34,7 +34,7 @@ jobs:
     steps:
     - name: git configure long path
       run: git config --global core.longpaths true
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with: 
         fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
 
@@ -49,7 +49,7 @@ jobs:
           secrets: ${{ toJSON(vars) }}
           include: FRONTEND_*
       - name: Build frontend with Webpack
-        uses: AxendoNL/webpack-action@v1.0.0
+        uses: AxendoNL/webpack-action@v1.1.0
         with:
           directory: ${{ inputs.frontend-directory }}
           output-folder: '${{ env.app-path }}\\wwwroot\\assets'
@@ -65,7 +65,7 @@ jobs:
           secrets: ${{ toJSON(vars) }}
           include: VUE_*
       - name: Build vue apps
-        uses: AxendoNL/webpack-action@v1.0.0
+        uses: AxendoNL/webpack-action@v1.1.0
         with:
           directory: ${{ inputs.vue-directory }}
           output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
@@ -88,7 +88,7 @@ jobs:
   Sync-and-push-to-cloud: 
     name: Sync and push to cloud
     if: always() && github.ref_name == 'master' && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
-    needs: Build-Vue
+    needs: Build-vue
     runs-on: [self-hosted, axendo]
     steps:
     - name: Add GitHub PAT to nuget.config
