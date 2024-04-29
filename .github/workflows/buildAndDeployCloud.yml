@@ -30,7 +30,7 @@ env:
 jobs:
   Checkout-source:
     name: Checkout source code
-    runs-on: [self-hosted, axendo-v2]
+    runs-on: [self-hosted, axendo-v3]
     steps:
     - name: git configure long path
       run: git config --global core.longpaths true
@@ -42,7 +42,7 @@ jobs:
     if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Checkout-source
-    runs-on: [self-hosted, axendo-v2]
+    runs-on: [self-hosted, axendo-v3]
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1.3 # Load VARS
         with:
@@ -58,7 +58,7 @@ jobs:
     if:  ${{ inputs.vue-directory }}
     name: Build Vue
     needs: Build-frontend         
-    runs-on: [self-hosted, axendo-v2]
+    runs-on: [self-hosted, axendo-v3]
     steps:
       - uses: oNaiPs/secrets-to-env-action@v1.3 # Load VARS
         with:
@@ -74,7 +74,7 @@ jobs:
     name: Build & Publish .NET
     needs: Build-vue
     if: always() && github.ref_name != 'master' && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
-    runs-on: [self-hosted, axendo-v2]
+    runs-on: [self-hosted, axendo-v3]
     steps:
     - name: Setup .NET
       uses: AxendoNL/dotnet-build-action@v13
@@ -89,7 +89,7 @@ jobs:
     name: Sync and push to cloud
     if: always() && github.ref_name == 'master' && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     needs: Build-vue
-    runs-on: [self-hosted, axendo-v2]
+    runs-on: [self-hosted, axendo-v3]
     steps:
     - name: Add GitHub PAT to nuget.config
       run: (Get-Content -path .\NuGet.config -Raw) -replace '{PAT}','${{ secrets.NUGET_PAT }}' | Set-Content -Path .\NuGet.config
@@ -106,7 +106,7 @@ jobs:
   cleanup:
     if: always() && vars.SKIP_CLEANUP != 'true'
     needs: [Sync-and-push-to-cloud]
-    runs-on: [self-hosted, axendo-v2]
+    runs-on: [self-hosted, axendo-v3]
     steps:
       - name: Delete sync folder en files
         uses: AxendoNL/sync-cleanup-action@v9
