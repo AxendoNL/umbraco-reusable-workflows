@@ -39,6 +39,7 @@ jobs:
           app-name: ${{ inputs.app-name }}
           slot-name: ${{ inputs.slot-name }}
           publish-profile: ${{ secrets.publish-profile }}
-          package: ./todeploy/myapp
+          package: ./artifact.zip
+          type: zip
           clean: true
           restart: true
