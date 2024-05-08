@@ -39,7 +39,7 @@ jobs:
           app-name: ${{ inputs.app-name }}
           slot-name: ${{ inputs.slot-name }}
           publish-profile: ${{ secrets.publish-profile }}
-          package: ./artifact.zip
+          package: .net-app
           type: zip
           clean: true
           restart: true
