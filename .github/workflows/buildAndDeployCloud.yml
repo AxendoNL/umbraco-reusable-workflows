@@ -42,33 +42,27 @@ jobs:
     if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Checkout-source
-    runs-on: [self-hosted, axendo-v3]
+    runs-on: [self-hosted, axendo]
     steps:
-      # - uses: oNaiPs/secrets-to-env-action@v1.3 # Load VARS
-      #   with:
-      #     secrets: ${{ toJSON(vars) }}
-      #     include: FRONTEND_*
       - name: Build frontend with Webpack
-        uses: AxendoNL/webpack-action@master
+        uses: AxendoNL/webpack-action@v1.2.0
         with:
           directory: ${{ inputs.frontend-directory }}
           output-folder: '${{ env.app-path }}\\wwwroot\\assets'
+          node-version: '${{vars.FRONTEND_NODE_VERSION}}'
           
   Build-vue:
-    if:  ${{ inputs.vue-directory }}
+    if: always() && ${{ inputs.vue-directory }} && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped')
     name: Build Vue
     needs: Build-frontend         
-    runs-on: [self-hosted, axendo-v3]
+    runs-on: [self-hosted, axendo]
     steps:
-      - uses: oNaiPs/secrets-to-env-action@v1.3 # Load VARS
-        with:
-          secrets: ${{ toJSON(vars) }}
-          include: VUE_*
       - name: Build vue apps
-        uses: AxendoNL/webpack-action@master
+        uses: AxendoNL/webpack-action@v1.2.0
         with:
           directory: ${{ inputs.vue-directory }}
           output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
+          node-version: '${{vars.VUE_NODE_VERSION}}'
 
   Build-NET:
     name: Build & Publish .NET
