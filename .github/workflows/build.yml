@@ -43,18 +43,23 @@ jobs:
     - uses: actions/checkout@v4.1.1
       with: 
         fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
+        
     - name: Build Frontend
       if: ${{ inputs.frontend-directory }}
-      uses: AxendoNL/webpack-action@v1.0.0
+      uses: AxendoNL/webpack-action@v1.2.0
       with:
         directory: ${{ inputs.frontend-directory }}
         output-folder: '${{ env.app-path }}\\wwwroot\\assets'
+        node-version: '${{vars.FRONTEND_NODE_VERSION}}'
+        
     - name: Build Vue apps
       if: ${{ inputs.vue-directory }}
-      uses: AxendoNL/webpack-action@v1.0.0
+      uses: AxendoNL/webpack-action@v1.2.0
       with:
         directory: ${{ inputs.vue-directory }}
         output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
+        node-version: '${{vars.VUE_NODE_VERSION}}'
+        
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3.2.0
       with:
