@@ -42,7 +42,7 @@ jobs:
     if: ${{ inputs.frontend-directory }}
     name: Build Frontend
     needs: Checkout-source
-    runs-on: [self-hosted, axendo]
+    runs-on: [self-hosted, axendo-v3]
     steps:
       - name: Build frontend with Webpack
         uses: AxendoNL/webpack-action@v1.2.0
@@ -55,7 +55,7 @@ jobs:
     if: always() && ${{ inputs.vue-directory }} && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped')
     name: Build Vue
     needs: Build-frontend         
-    runs-on: [self-hosted, axendo]
+    runs-on: [self-hosted, axendo-v3]
     steps:
       - name: Build vue apps
         uses: AxendoNL/webpack-action@v1.2.0
