@@ -66,8 +66,8 @@ jobs:
 
   Build-NET:
     name: Build & Publish .NET
-    needs: Build-vue
-    if: always() && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
+    needs: [Build-frontend, Build-vue]
+    if: always() && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     runs-on: [self-hosted, axendo]
     steps:
     - name: Setup .NET

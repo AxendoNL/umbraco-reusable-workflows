@@ -66,8 +66,8 @@ jobs:
 
   Build-NET:
     name: Build & Publish .NET
-    needs: Build-vue
-    if: always() && github.ref_name != 'master' && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
+    needs: [Build-frontend, Build-vue]
+    if: always() && github.ref_name != 'master' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     runs-on: [self-hosted, axendo-v3]
     steps:
     - name: Setup .NET
@@ -81,8 +81,8 @@ jobs:
 
   Sync-and-push-to-cloud: 
     name: Sync and push to cloud
-    if: always() && github.ref_name == 'master' && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
-    needs: Build-vue
+    if: always() && github.ref_name == 'master' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
+    needs: [Build-frontend, Build-vue]
     runs-on: [self-hosted, axendo-v3]
     steps:
     - name: Add GitHub PAT to nuget.config

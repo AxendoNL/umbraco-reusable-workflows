@@ -71,8 +71,9 @@ jobs:
           node-version: '${{vars.VUE_NODE_VERSION}}'
 
   Build-NET:
+    if: always() && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     name: Build & Publish .NET
-    needs: Build-vue
+    needs: [Build-frontend, Build-vue]
     runs-on: [self-hosted, axendo]
     steps:
       - name: Setup .NET
