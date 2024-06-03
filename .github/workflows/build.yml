@@ -54,7 +54,7 @@ jobs:
         
     - name: Build Vue apps
       if: ${{ inputs.vue-directory }}
-      uses: AxendoNL/webpack-action@v1.0.0
+      uses: AxendoNL/webpack-action@v1.2.0
       with:
         directory: ${{ inputs.vue-directory }}
         output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
