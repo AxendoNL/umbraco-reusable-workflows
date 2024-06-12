@@ -39,7 +39,7 @@ jobs:
         fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
 
   Build-frontend:
-    if: ${{ inputs.frontend-directory }}
+    if: ${{ inputs.frontend-directory }} && ${{ vars.SKIP_FRONTEND != 'true' }}
     name: Build Frontend
     needs: Checkout-source
     runs-on: [self-hosted, axendo-v3]
@@ -52,7 +52,7 @@ jobs:
           node-version: '${{vars.FRONTEND_NODE_VERSION}}'
           
   Build-vue:
-    if: always() && ${{ inputs.vue-directory }} && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped')
+    if: always() && ${{ inputs.vue-directory }} && ${{ vars.SKIP_VUE != 'true' }} && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped')
     name: Build Vue
     needs: Build-frontend         
     runs-on: [self-hosted, axendo-v3]

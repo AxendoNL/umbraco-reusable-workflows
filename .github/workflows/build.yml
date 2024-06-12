@@ -45,7 +45,7 @@ jobs:
         fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
         
     - name: Build Frontend
-      if: ${{ inputs.frontend-directory }}
+      if: ${{ inputs.frontend-directory }} && ${{ vars.SKIP_FRONTEND != 'true' }}
       uses: AxendoNL/webpack-action@v1.2.0
       with:
         directory: ${{ inputs.frontend-directory }}
@@ -53,7 +53,7 @@ jobs:
         node-version: '${{vars.FRONTEND_NODE_VERSION}}'
         
     - name: Build Vue apps
-      if: ${{ inputs.vue-directory }}
+      if: ${{ inputs.vue-directory }} && ${{ vars.SKIP_VUE != 'true' }}
       uses: AxendoNL/webpack-action@v1.2.0
       with:
         directory: ${{ inputs.vue-directory }}
