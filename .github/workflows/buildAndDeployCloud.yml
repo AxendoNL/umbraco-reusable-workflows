@@ -35,9 +35,9 @@ jobs:
     - name: Print Variables
       run: |
         echo "Frontend Directory: ${{ inputs.frontend-directory }}"
-        echo "Skip Frontend: ${{ vars.SKIP_FRONTEND }} Skip: ${{ vars.SKIP_FRONTEND != true }}" 
+        echo "Skip Frontend: ${{ vars.SKIP_FRONTEND }} Skip: ${{ vars.SKIP_FRONTEND != 'true' }}" 
         echo "Vue Directory: ${{ inputs.vue-directory }}"
-        echo "Skip Vue: ${{ vars.SKIP_VUE }} Skip: ${{ vars.SKIP_VUE != true }}"
+        echo "Skip Vue: ${{ vars.SKIP_VUE }} Skip: ${{ vars.SKIP_VUE != 'true' }}"
     - name: git configure long path
       run: git config --global core.longpaths true
     - uses: actions/checkout@v4
