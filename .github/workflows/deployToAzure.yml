@@ -29,9 +29,9 @@ jobs:
         uses: actions/download-artifact@v4.1.7
         with:
           name: .net-app
-      # - name: Extract artifact
-      #   run: Expand-Archive -Path artifact.zip -DestinationPath ./todeploy
-      #   shell: powershell
+      - name: Compress
+        run: Compress-Archive -Path ./* -DestinationPath ./artifact.zip
+        shell: powershell
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -39,7 +39,7 @@ jobs:
           app-name: ${{ inputs.app-name }}
           slot-name: ${{ inputs.slot-name }}
           publish-profile: ${{ secrets.publish-profile }}
-          package: .net-app.zip
+          package: artifact.zip
           type: zip
           clean: true
           restart: true
