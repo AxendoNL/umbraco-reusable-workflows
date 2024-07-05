@@ -78,12 +78,13 @@ jobs:
     - name: Dotnet publish
       run: dotnet publish ${{ inputs.csproj-path }} -c Release -o ./myapp
     
-    - name: Archive artifact
-      run: Compress-Archive -Path ./myapp/* -DestinationPath artifact.zip
-      shell: powershell
+    # - name: Archive artifact
+    #   run: Compress-Archive -Path ./myapp/* -DestinationPath artifact.zip
+    #   shell: powershell
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4.3.3
       with:
         name: .net-app
-        path: ./artifact.zip
+        path: ./myapp/*
+        # path: ./artifact.zip
