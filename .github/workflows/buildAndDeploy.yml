@@ -23,7 +23,7 @@ on:
                 
 ### Some environment variables to ease use and keep oversight        
 env:
-  app-path: ${{ github.workspace }}\${{ inputs.organization-name }}.${{ inputs.project-name }}.WebApp
+  app-path: ${{ github.workspace }}\${{ inputs.organization-name }}.${{ inputs.project-name }}.${{ inputs.site-folder-ending }}
         
 jobs:
   Checkout-source:
