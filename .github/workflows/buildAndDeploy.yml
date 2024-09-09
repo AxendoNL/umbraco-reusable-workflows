@@ -3,18 +3,6 @@ name: Build and deploy changes Umbraco V8.1
 on:
   workflow_call:
     inputs:
-      frontend-directory:
-        required: false
-        type: string
-      cd-path:
-        required: false
-        type: string
-      vue-directory:
-        required: false
-        type: string
-      cd-path-vue:
-        required: false
-        type: string
       organization-name:
         required: true
         type: string
