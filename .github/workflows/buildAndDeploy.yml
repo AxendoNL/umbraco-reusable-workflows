@@ -20,6 +20,7 @@ on:
         description: 'The folder suffix to copy files from (e.g., .web or .site)'
         required: true
         default: '.web'
+        type: string
                 
 ### Some environment variables to ease use and keep oversight        
 env:
