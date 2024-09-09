@@ -16,6 +16,10 @@ on:
       csproj-path:
         required: true
         type: string
+      site-folder-ending:
+        description: 'The folder suffix to copy files from (e.g., .web or .site)'
+        required: true
+        default: '.web'
                 
 ### Some environment variables to ease use and keep oversight        
 env:
@@ -45,6 +49,7 @@ jobs:
         build-configuration: ${{ inputs.build-configuration }}
         csproj-path: ${{ inputs.csproj-path }}
         token: ${{ secrets.NUGET_PAT }}
+        site-folder-ending: ${{ inputs.site-folder-ending }}
   
   Cleanup:
     name: cleanup files
