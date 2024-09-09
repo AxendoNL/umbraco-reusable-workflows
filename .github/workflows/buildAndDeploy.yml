@@ -25,7 +25,6 @@ on:
 ### Some environment variables to ease use and keep oversight        
 env:
   app-path: ${{ github.workspace }}\${{ inputs.organization-name }}.${{ inputs.project-name }}.${{ inputs.site-folder-ending }}
-  ORGANIZATION_NAME: ${{ inputs.organization-name }}
         
 jobs:
   Checkout-source:
@@ -42,11 +41,10 @@ jobs:
     name: Build & Publish .NET
     needs: Checkout-source
     runs-on: [self-hosted, axendo]
+    env:
+      # Define default environment variables
+      ORGANIZATION_NAME: ${{ vars.OVERRIDE_ORGANIZATION_NAME || inputs.organization-name }}
     steps:
-    # Optionally, override environment variables from external sources
-    - name: Override environment variables
-      run: |
-        echo "ORGANIZATION_NAME=${{ vars.OVERRIDE_ORGANIZATION_NAME || env.ORGANIZATION_NAME }}" >> $GITHUB_ENV 
     - name: Setup .NET
       uses: AxendoNL/dotnet-build-action@v8.1
       with:
