@@ -31,7 +31,7 @@ on:
                 
 ### Some environment variables to ease use and keep oversight        
 env:
-  app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
+  app-path: ${{ github.workspace }}\${{ inputs.organization-name }}.${{ inputs.project-name }}.WebApp
         
 jobs:
   Checkout-source:
@@ -44,36 +44,9 @@ jobs:
       with: 
         fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
 
-  Build-frontend:
-    if: ${{ inputs.frontend-directory }}
-    name: Build Frontend
-    needs: Checkout-source
-    runs-on: [self-hosted, axendo]
-    steps:
-      - name: build the frontend
-        uses: AxendoNL/build-frontend-action@v8.2.1
-        with:
-          frontend-directory: ${{ inputs.frontend-directory }}
-          cd-path: ${{ inputs.cd-path }}
-          app-path: ${{ env.app-path }}
-  
-  Build-vue:
-    if:  ${{ inputs.vue-directory }}
-    name: Build Vue
-    needs: Build-frontend         
-    runs-on: [self-hosted, axendo]
-    steps:
-      - name: Build vue apps
-        uses: AxendoNL/build-vue-action@v8.2
-        with:
-          vue-directory: ${{ inputs.vue-directory }}
-          cd-path-vue: ${{ inputs.cd-path-vue }}
-          app-path: ${{ env.app-path }}
-
   Build-NET:
     name: Build & Publish .NET
-    needs: Build-vue
-    if: always() && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
+    needs: Checkout-source
     runs-on: [self-hosted, axendo]
     steps:
     - name: Setup .NET
