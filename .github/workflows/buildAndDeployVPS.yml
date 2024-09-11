@@ -97,11 +97,11 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps: 
       - name: Deploy to VPS
-        uses: rasmusbuchholdt/simply-web-deploy@2.1.0
+        uses: AxendoNL/web-deploy-action@main
         with:
           website-name: ${{ vars.WEBSITE_NAME }}
           server-computer-name: ${{ vars.SERVER_COMPUTER_NAME }}
           server-username: ${{ secrets.SERVER_USERNAME }}
           server-password: ${{ secrets.SERVER_PASSWORD }}
           source-path: '${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\'
-          target-path: ''
+          target-path: '""'
