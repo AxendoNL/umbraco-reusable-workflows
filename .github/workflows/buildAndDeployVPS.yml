@@ -95,6 +95,7 @@ jobs:
     name: Deploy using WebDeploy
     needs: [Build-NET]
     runs-on: ${{ vars.RUNNER || 'self-hosted, axendo' }}
+    steps: 
       - name: Deploy to VPS
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
