@@ -36,7 +36,7 @@ env:
 jobs:
   Checkout-source:
     name: Checkout source code
-    runs-on: [self-hosted, axendo]
+    runs-on: windows-latest
     steps:
     - name: git configure long path
       run: git config --global core.longpaths true
@@ -48,7 +48,7 @@ jobs:
     if: inputs.frontend-directory && vars.SKIP_FRONTEND != 'true' 
     name: Build Frontend
     needs: Checkout-source
-    runs-on: [self-hosted, axendo]
+    runs-on: windows-latest
     steps:
       - name: Build frontend with Webpack
         uses: AxendoNL/webpack-action@v1.2.0
@@ -61,7 +61,7 @@ jobs:
     if: always() && inputs.vue-directory && vars.SKIP_VUE != 'true' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped')
     name: Build Vue
     needs: Build-frontend         
-    runs-on: [self-hosted, axendo]
+    runs-on: windows-latest
     steps:
       - name: Build vue apps
         uses: AxendoNL/webpack-action@v1.2.0
@@ -74,7 +74,7 @@ jobs:
     if: always() && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     name: Build & Publish .NET
     needs: [Build-frontend, Build-vue]
-    runs-on: [self-hosted, axendo]
+    runs-on: windows-latest
     steps:
       - name: Setup .NET
         uses: AxendoNL/dotnet-package-action@v12
@@ -94,7 +94,7 @@ jobs:
     if: always() && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     name: Deploy using WebDeploy
     needs: [Build-NET]
-    runs-on: [self-hosted, axendo]
+    runs-on: windows-latest
     steps: 
       - name: Deploy to VPS
         uses: AxendoNL/web-deploy-action@main
