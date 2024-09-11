@@ -1,0 +1,107 @@
+name: Build And Deploy To VPS - Umbraco V13
+
+on:
+  workflow_call:
+    inputs:
+      frontend-directory:
+        required: false
+        type: string
+      cd-path:
+        required: false
+        type: string
+      vue-directory:
+        required: false
+        type: string
+      cd-path-vue:
+        required: false
+        type: string
+      organization-name:
+        required: true
+        type: string
+      project-name:
+        required: true
+        type: string
+      build-configuration:
+        required: true
+        default: 'release'
+        type: string
+      csproj-path:
+        required: true
+        type: string
+      
+### Some environment variables to ease use and keep oversight        
+env:
+  app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
+  RUNNER: ${{ vars.RUNNER || 'self-hosted, axendo' }}
+
+jobs:
+  Checkout-source:
+    name: Checkout source code
+    runs-on: [${{ env.RUNNER }}]
+    steps:
+    - name: git configure long path
+      run: git config --global core.longpaths true
+    - uses: actions/checkout@v3
+      with: 
+        fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
+    
+  Build-frontend:
+    if: inputs.frontend-directory && vars.SKIP_FRONTEND != 'true' 
+    name: Build Frontend
+    needs: Checkout-source
+    runs-on: [${{ env.RUNNER }}]
+    steps:
+      - name: Build frontend with Webpack
+        uses: AxendoNL/webpack-action@v1.2.0
+        with:
+          directory: ${{ inputs.frontend-directory }}
+          output-folder: '${{ env.app-path }}\\wwwroot\\assets'
+          node-version: '${{vars.FRONTEND_NODE_VERSION}}'
+          
+  Build-vue:
+    if: always() && inputs.vue-directory && vars.SKIP_VUE != 'true' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped')
+    name: Build Vue
+    needs: Build-frontend         
+    runs-on: [${{ env.RUNNER }}]
+    steps:
+      - name: Build vue apps
+        uses: AxendoNL/webpack-action@v1.2.0
+        with:
+          directory: ${{ inputs.vue-directory }}
+          output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
+          node-version: '${{vars.VUE_NODE_VERSION}}'
+
+  Build-NET:
+    if: always() && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
+    name: Build & Publish .NET
+    needs: [Build-frontend, Build-vue]
+    runs-on: [${{ env.RUNNER }}]
+    steps:
+      - name: Setup .NET
+        uses: AxendoNL/dotnet-package-action@v12
+        with:
+          organization-name: ${{ inputs.organization-name }}
+          project-name: ${{ inputs.project-name }}
+          build-configuration: ${{ inputs.build-configuration }}
+          csproj-path: ${{ inputs.csproj-path }}
+          token: ${{ secrets.NUGET_PAT }}
+      ### Remove files from artifact if build success
+      - name: Cleanup root
+        run: |
+          Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\* -Include ('*.json', '*.pbd', '*.config') -Exclude '*.deps.json', '*.runtimeconfig.*' | Remove-Item -Verbose
+          Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include ('*.config') -Recurse | Remove-Item -Verbose
+      
+   Deploy:
+    if: always() && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
+    name: Deploy using WebDeploy
+    needs: [Build-NET]
+    runs-on: [${{ env.RUNNER }}]
+      - name: Deploy to VPS
+        uses: rasmusbuchholdt/simply-web-deploy@2.1.0
+        with:
+          website-name: ${{ vars.WEBSITE_NAME }}
+          server-computer-name: ${{ vars.SERVER_COMPUTER_NAME }}
+          server-username: ${{ secrets.SERVER_USERNAME }}
+          server-password: ${{ secrets.SERVER_PASSWORD }}
+          source-path: '${{ github.workspace }}\Archive\'
+          target-path: '/'
