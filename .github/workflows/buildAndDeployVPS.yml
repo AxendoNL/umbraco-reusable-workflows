@@ -53,7 +53,7 @@ jobs:
       - name: Build frontend with Webpack
         uses: AxendoNL/webpack-action@v1.2.0
         with:
-          directory: ${{ github.workspace }}\\${{ inputs.frontend-directory }}
+          directory: ${{ github.workspace }}\${{ inputs.frontend-directory }}
           output-folder: '${{ env.app-path }}\\wwwroot\\assets'
           node-version: '${{vars.FRONTEND_NODE_VERSION}}'
           
@@ -66,7 +66,7 @@ jobs:
       - name: Build vue apps
         uses: AxendoNL/webpack-action@v1.2.0
         with:
-          directory: ${{ github.workspace }}\\${{ inputs.vue-directory }}
+          directory: ${{ github.workspace }}\${{ inputs.vue-directory }}
           output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
           node-version: '${{vars.VUE_NODE_VERSION}}'
 
