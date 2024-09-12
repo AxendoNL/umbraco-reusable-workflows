@@ -92,10 +92,10 @@ jobs:
       ### Include folders from assets folder
       - name: Copy predefined folders to wildcard paths
         run: |
-          $folders = @("${{ env.app-path }}/wwwroot/assets", "${{ env.app-path }}/wwwroot/vue-apps") # Predefined folders to copy
+          $folders = @("$env:app_path/wwwroot/assets", "$env:app_path/wwwroot/vue-apps") # Predefined folders to copy
 
           # Resolve wildcard to actual paths
-          $destinationPaths = Get-ChildItem -Path "${{ env.app-path }}/*/wwwroot" -Directory
+          $destinationPaths = Get-ChildItem -Path "$env:app_path/*/wwwroot" -Directory
 
           # Check if destination paths are found
           if ($destinationPaths.Count -eq 0) {
