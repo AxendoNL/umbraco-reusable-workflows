@@ -90,7 +90,9 @@ jobs:
           Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\* -Include ('*.json', '*.pbd', '*.config') -Exclude '*.deps.json', '*.runtimeconfig.*' | Remove-Item -Verbose
           Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include ('*.config') -Recurse | Remove-Item -Verbose
       - name: Set up environment variable for workspace
-        run: echo "archive_path=${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\" >> $GITHUB_ENV       
+        run: |
+          echo "archive_path=${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\" >> $GITHUB_ENV       
+          echo "app_path=${{ env.app-path }}" >> $GITHUB_ENV       
       ### Include folders from assets folder
       - name: Copy predefined folders to wildcard paths
         run: |
