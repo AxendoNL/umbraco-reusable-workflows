@@ -103,7 +103,7 @@ jobs:
           $folders = @("$env:application_path/wwwroot/assets", "$env:application_path/wwwroot/vue-apps") # Predefined folders to copy
 
           # Resolve wildcard to actual paths
-          $destinationPaths = Get-ChildItem -Path "$env:archive_path/*/wwwroot" -Directory
+          $destinationPaths = Get-ChildItem -Path "$env:archive_path/wwwroot" -Directory
 
           # Check if destination paths are found
           if ($destinationPaths.Count -eq 0) {
