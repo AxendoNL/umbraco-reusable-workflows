@@ -93,9 +93,9 @@ jobs:
       ### Include folders from assets folder
       - name: Copy predefined folders to wildcard paths
         run: |
-
-          Write-Output "$env:app_path"
-          Write-Output "$env:archive_path"
+          Write-Output "Test"
+          Write-Output "$($env:app_path)"
+          Write-Output "$($env:archive_path)"
 
           $folders = @("$env:app_path/wwwroot/assets", "$env:app_path/wwwroot/vue-apps") # Predefined folders to copy
 
