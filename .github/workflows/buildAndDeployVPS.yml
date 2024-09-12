@@ -89,17 +89,19 @@ jobs:
         run: |
           Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\* -Include ('*.json', '*.pbd', '*.config') -Exclude '*.deps.json', '*.runtimeconfig.*' | Remove-Item -Verbose
           Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include ('*.config') -Recurse | Remove-Item -Verbose
+      - name: Set up environment variable for workspace
+        run: echo "archive_path=${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\" >> $GITHUB_ENV       
       ### Include folders from assets folder
       - name: Copy predefined folders to wildcard paths
         run: |
           $folders = @("$env:app_path/wwwroot/assets", "$env:app_path/wwwroot/vue-apps") # Predefined folders to copy
 
           # Resolve wildcard to actual paths
-          $destinationPaths = Get-ChildItem -Path "$env:app_path/*/wwwroot" -Directory
+          $destinationPaths = Get-ChildItem -Path "$env:archive_path/*/wwwroot" -Directory
 
           # Check if destination paths are found
           if ($destinationPaths.Count -eq 0) {
-              Write-Error "No destination paths found matching the wildcard."
+              Write-Output "No destination paths found matching the wildcard."
           }
 
           foreach ($destPath in $destinationPaths) {
