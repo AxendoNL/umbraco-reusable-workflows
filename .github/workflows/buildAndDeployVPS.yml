@@ -32,7 +32,6 @@ on:
 ### Some environment variables to ease use and keep oversight        
 env:
   app-path: ${{ github.workspace }}\\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
-  archive-path: ${{ github.workspace }}\\Archive\\${{ inputs.organization-name }}\\${{ inputs.project-name }}\\${{ github.ref_name }}
 
 jobs:
   Checkout-source:
@@ -77,6 +76,10 @@ jobs:
     needs: [Build-frontend, Build-vue]
     runs-on: [self-hosted, axendo]
     steps:
+      - name: Set up environment variable for workspace
+        run: |
+          echo "archive_path=${{ github.workspace }}/Archive/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}" >> $env:GITHUB_ENV      
+          echo "application_path=${{ github.workspace }}/Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web" >> $env:GITHUB_ENV
       - name: Setup .NET
         uses: AxendoNL/dotnet-package-action@v12
         with:
@@ -94,10 +97,10 @@ jobs:
       - name: Copy predefined folders to wildcard paths
         run: |
           Write-Output "Test"
-          Write-Output "$($env:app_path)"
-          Write-Output "$($env:archive_path)"
+          Write-Output "$env:archive_path"
+          Write-Output "$env:application_path"
 
-          $folders = @("$env:app_path/wwwroot/assets", "$env:app_path/wwwroot/vue-apps") # Predefined folders to copy
+          $folders = @("$env:application_path/wwwroot/assets", "$env:application_path/wwwroot/vue-apps") # Predefined folders to copy
 
           # Resolve wildcard to actual paths
           $destinationPaths = Get-ChildItem -Path "$env:archive_path/*/wwwroot" -Directory
