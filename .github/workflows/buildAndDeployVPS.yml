@@ -31,8 +31,8 @@ on:
       
 ### Some environment variables to ease use and keep oversight        
 env:
-  app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
-  archive-path: ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}
+  app-path: ${{ github.workspace }}\\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
+  archive-path: ${{ github.workspace }}\\Archive\\${{ inputs.organization-name }}\\${{ inputs.project-name }}\\${{ github.ref_name }}
 
 jobs:
   Checkout-source:
