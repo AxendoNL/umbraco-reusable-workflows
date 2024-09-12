@@ -32,6 +32,7 @@ on:
 ### Some environment variables to ease use and keep oversight        
 env:
   app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
+  archive-path: ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}
 
 jobs:
   Checkout-source:
@@ -88,15 +89,11 @@ jobs:
       - name: Cleanup root
         run: |
           Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\* -Include ('*.json', '*.pbd', '*.config') -Exclude '*.deps.json', '*.runtimeconfig.*' | Remove-Item -Verbose
-          Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include ('*.config') -Recurse | Remove-Item -Verbose
-      - name: Set up environment variable for workspace
-        run: |
-          echo "archive_path=${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\" >> $GITHUB_ENV       
-          echo "application_path=${{ env.app-path }}" >> $GITHUB_ENV       
+          Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include ('*.config') -Recurse | Remove-Item -Verbose     
       ### Include folders from assets folder
       - name: Copy predefined folders to wildcard paths
         run: |
-          $folders = @("$env:application_path/wwwroot/assets", "$env:application_path/wwwroot/vue-apps") # Predefined folders to copy
+          $folders = @("$env:app_path/wwwroot/assets", "$env:app_path/wwwroot/vue-apps") # Predefined folders to copy
 
           # Resolve wildcard to actual paths
           $destinationPaths = Get-ChildItem -Path "$env:archive_path/*/wwwroot" -Directory
