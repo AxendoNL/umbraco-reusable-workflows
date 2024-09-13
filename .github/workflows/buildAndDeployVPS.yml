@@ -90,40 +90,39 @@ jobs:
           token: ${{ secrets.NUGET_PAT }}
       ### Remove files from artifact if build success
       - name: Cleanup root
-        run: | 
+        run: |
           Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\* -Include ('*.json', '*.pbd', '*.config') -Exclude '*.deps.json', '*.runtimeconfig.*' | Remove-Item -Verbose
-          Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include ('*.config') -Recurse | Remove-Item -Verbose         
+          Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include ('*.config') -Recurse | Remove-Item -Verbose     
       ### Include folders from assets folder
       - name: Copy predefined folders with partial paths
         run: | 
-            Write-Output "$env:archive_path"
-            Write-Output "$env:application_path"
+          Write-Output "$env:archive_path"
+          Write-Output "$env:application_path"
               
-            # Predefined partial paths to copy
-            $folders = @("wwwroot/assets", "wwwroot/vue-apps")
+          # Predefined partial paths to copy
+          $folders = @("wwwroot/assets", "wwwroot/vue-apps")
 
-            # Iterate over the predefined folder partial paths
-            foreach ($folder in $folders) {
-              # Construct the full source and destination paths
-              $sourcePath = Join-Path $env:application_path $folder
-              $destinationPath = Join-Path $env:archive_path $folder
+          # Iterate over the predefined folder partial paths
+          foreach ($folder in $folders) {
+            # Construct the full source and destination paths
+            $sourcePath = Join-Path $env:application_path $folder
+            $destinationPath = Join-Path $env:archive_path $folder
 
-              # Check if the source folder exists
-              if (Test-Path -Path $sourcePath) {
-                  # Create the destination folder if it doesn't exist
-                  if (-Not (Test-Path -Path $destinationPath)) {
-                      New-Item -ItemType Directory -Path $destinationPath -Force
-                  }
+            # Check if the source folder exists
+            if (Test-Path -Path $sourcePath) {
+                # Create the destination folder if it doesn't exist
+                if (-Not (Test-Path -Path $destinationPath)) {
+                    New-Item -ItemType Directory -Path $destinationPath -Force
+                }
 
-                  # Copy items from the source to the destination while retaining the folder structure
-                  Copy-Item -Path "$sourcePath/*" -Destination "$destinationPath" -Recurse -Force
-                  Write-Output "Copied items from '$sourcePath' to '$destinationPath'"
-              } else {
-                  Write-Output "Source folder '$sourcePath' does not exist. Skipping..."
-              }
-          }
-        shell: powershell
-
+                # Copy items from the source to the destination while retaining the folder structure
+                Copy-Item -Path "$sourcePath/*" -Destination "$destinationPath" -Recurse -Force
+                Write-Output "Copied items from '$sourcePath' to '$destinationPath'"
+            } else {
+                Write-Output "Source folder '$sourcePath' does not exist. Skipping..."
+            }
+        }
+      shell: powershell
 
 
   Deploy:
