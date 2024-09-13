@@ -95,10 +95,10 @@ jobs:
           Get-ChildItem -Path ${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\wwwroot -Include ('*.config') -Recurse | Remove-Item -Verbose     
       ### Include folders from assets folder
       - name: Copy predefined folders with partial paths
-        run: | 
+        run: |
           Write-Output "$env:archive_path"
           Write-Output "$env:application_path"
-              
+            
           # Predefined partial paths to copy
           $folders = @("wwwroot/assets", "wwwroot/vue-apps")
 
@@ -121,8 +121,9 @@ jobs:
             } else {
                 Write-Output "Source folder '$sourcePath' does not exist. Skipping..."
             }
-        }
-      shell: powershell
+          }
+        shell: powershell
+
 
 
   Deploy:
