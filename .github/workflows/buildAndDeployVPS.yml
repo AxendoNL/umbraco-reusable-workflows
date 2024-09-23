@@ -143,4 +143,4 @@ jobs:
           target-path: '""'
           target-delete: "false"
           skip-directory-path: '""'
-          skip-backup-paths: ${{ vars.SKIP_BACKUP }}
+          skip-backup-paths: '${{ vars.SKIP_BACKUP }}'
