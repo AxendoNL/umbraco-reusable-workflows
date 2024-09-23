@@ -141,3 +141,6 @@ jobs:
           server-password: ${{ secrets.SERVER_PASSWORD }}
           source-path: '${{ github.workspace }}\Archive\${{ inputs.organization-name }}\${{ inputs.project-name }}\${{ github.ref_name }}\'
           target-path: '""'
+          target-delete: "false"
+          skip-directory-path: '""'
+          skip-backup-paths: ${{ vars.SKIP_BACKUP }}
