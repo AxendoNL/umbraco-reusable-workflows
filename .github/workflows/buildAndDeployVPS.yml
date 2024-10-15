@@ -31,7 +31,7 @@ on:
       
 ### Some environment variables to ease use and keep oversight        
 env:
-  app-path: ${{ github.workspace }}\\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
+  app-path: ${{ github.workspace }}\\${{vars.APP_PATH_PREFIX}}${{ inputs.organization-name }}.${{ inputs.project-name }}${{vars.APP_PATH_SUFFIX}}
 
 jobs:
   Checkout-source:
@@ -79,7 +79,7 @@ jobs:
       - name: Set up environment variable for workspace
         run: |
           echo "archive_path=${{ github.workspace }}/Archive/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}" >> $env:GITHUB_ENV      
-          echo "application_path=${{ github.workspace }}/Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web" >> $env:GITHUB_ENV
+          echo "application_path=${{ github.workspace }}/${{vars.APP_PATH_PREFIX}}${{ inputs.organization-name }}.${{ inputs.project-name }}${{vars.APP_PATH_PREFIX}}" >> $env:GITHUB_ENV
       - name: Setup .NET
         uses: AxendoNL/dotnet-package-action@v12
         with:
@@ -127,7 +127,6 @@ jobs:
 
 
   Deploy:
-    if: always() && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     name: Deploy using WebDeploy
     needs: [Build-NET]
     runs-on: [self-hosted, axendo]
