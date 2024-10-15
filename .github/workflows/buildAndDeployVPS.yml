@@ -127,6 +127,7 @@ jobs:
 
 
   Deploy:
+    if: always() && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     name: Deploy using WebDeploy
     needs: [Build-NET]
     runs-on: [self-hosted, axendo]
