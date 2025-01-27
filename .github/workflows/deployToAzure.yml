@@ -29,6 +29,10 @@ jobs:
         uses: actions/download-artifact@v4.1.8
         with:
           name: .net-app
+          path: ./artifact
+       - name: Retain the .zip file
+         run: Move-Item -Path ".\artifact\.net-app.zip" -Destination ".\artifact.zip"
+         shell: powershell
  #     - name: Compress
  #       run: Compress-Archive -Path ./* -DestinationPath ./artifact.zip
  #       shell: powershell
@@ -39,7 +43,7 @@ jobs:
           app-name: ${{ inputs.app-name }}
           slot-name: ${{ inputs.slot-name }}
           publish-profile: ${{ secrets.publish-profile }}
-          package: net-app.zip
+          package: ./artifact.zip  # Ensure this matches the path where you saved the .zip
           type: zip
           clean: true
           restart: true
