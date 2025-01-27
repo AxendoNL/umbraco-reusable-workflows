@@ -18,6 +18,13 @@ on:
         required: true
 
 jobs:
+  Prepare:
+    name: Prepare working directory
+    runs-on: ["${{ inputs.runner-platform }}"]
+    steps:
+    - name: Delete GitHub workspace
+      run: Remove-Item -Recurse -Force ./*
+      
   Deploy:
     name: Deploy to Azure
     runs-on: ["${{ inputs.runner-platform }}"]
@@ -29,13 +36,10 @@ jobs:
         uses: actions/download-artifact@v4.1.8
         with:
           name: .net-app
-          path: ./artifact
-      - name: Retain the .zip file
-        run: Move-Item -Path ".\artifact\.net-app.zip" -Destination ".\artifact.zip"
+          path: ./../artifact
+      - name: Compress
+        run: Compress-Archive -Path ./../artifact* -DestinationPath ./../artifact.zip
         shell: powershell
- #     - name: Compress
- #       run: Compress-Archive -Path ./* -DestinationPath ./artifact.zip
- #       shell: powershell
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3.0.2
@@ -43,7 +47,7 @@ jobs:
           app-name: ${{ inputs.app-name }}
           slot-name: ${{ inputs.slot-name }}
           publish-profile: ${{ secrets.publish-profile }}
-          package: ./artifact.zip  # Ensure this matches the path where you saved the .zip
+          package: ./../artifact.zip  # Ensure this matches the path where you saved the .zip
           type: zip
           clean: true
           restart: true
