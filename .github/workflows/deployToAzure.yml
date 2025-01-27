@@ -39,7 +39,7 @@ jobs:
           name: .net-app
           path: ./../artifact
       - name: Compress
-        run: Compress-Archive -Path ./../artifact* -DestinationPath ./../artifact.zip
+        run: Compress-Archive -Path ./../artifact/* -DestinationPath ./../artifact.zip
         shell: powershell
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
