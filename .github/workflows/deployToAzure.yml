@@ -27,6 +27,7 @@ jobs:
       
   Deploy:
     name: Deploy to Azure
+    needs: Prepare
     runs-on: ["${{ inputs.runner-platform }}"]
     environment:
       name: ${{ inputs.slot-name }}
