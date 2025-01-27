@@ -22,8 +22,11 @@ jobs:
     name: Prepare working directory
     runs-on: ["${{ inputs.runner-platform }}"]
     steps:
-    - name: Delete GitHub workspace
-      run: Remove-Item -Recurse -Force ./*
+    - name: Delete GitHub workspace artifact folder and .zip 
+      run: | 
+        Remove-Item -Recurse -Force ./*
+        Remove-Item -Recurse -Force ./../artifact
+        Remove-Item -Recurse -Force ./../artifact.zip
       
   Deploy:
     name: Deploy to Azure
