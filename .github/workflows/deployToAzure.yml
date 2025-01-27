@@ -30,9 +30,9 @@ jobs:
         with:
           name: .net-app
           path: ./artifact
-       - name: Retain the .zip file
-         run: Move-Item -Path ".\artifact\.net-app.zip" -Destination ".\artifact.zip"
-         shell: powershell
+      - name: Retain the .zip file
+        run: Move-Item -Path ".\artifact\.net-app.zip" -Destination ".\artifact.zip"
+        shell: powershell
  #     - name: Compress
  #       run: Compress-Archive -Path ./* -DestinationPath ./artifact.zip
  #       shell: powershell
