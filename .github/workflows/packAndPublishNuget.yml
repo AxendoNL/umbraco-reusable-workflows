@@ -76,13 +76,26 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore
 
-      - name: Build and Pack NuGet Packages
+      - name: Find and Build Projects
         run: |
-          $projects = Get-ChildItem -Path . -Recurse -Filter *.csproj
-          foreach ($proj in $projects) {
-              Write-Host "Packing $proj with version ${{ steps.gitversion.outputs.FullSemVer }}"
-              dotnet pack $proj.FullName --configuration Release --output nupkgs /p:Version=${{ steps.gitversion.outputs.FullSemVer }}
+          $projects = Get-ChildItem -Path $GITHUB_WORKSPACE -Recurse -Filter *.csproj
+          if ($projects.Count -eq 0) {
+              Write-Error "No .csproj files found! Check your repository structure."
+              exit 1
           }
+          foreach ($proj in $projects) {
+              Write-Host "Building $proj.FullName"
+              dotnet build "$($proj.FullName)" --configuration Release
+          }
+
+      - name: Pack NuGet Packages
+        run: |
+          $projects = Get-ChildItem -Path $GITHUB_WORKSPACE -Recurse -Filter *.csproj
+          foreach ($proj in $projects) {
+              Write-Host "Packing $proj.FullName with version ${{ steps.gitversion.outputs.FullSemVer }}"
+              dotnet pack "$($proj.FullName)" --configuration Release --output nupkgs /p:Version=${{ steps.gitversion.outputs.FullSemVer }}
+          }
+
 
       - name: Publish NuGet Packages to GitHub Packages
         run: |
