@@ -49,9 +49,17 @@ jobs:
       - name: Build and Pack NuGet Packages
         run: |
           $projects = Get-ChildItem -Path $GITHUB_WORKSPACE -Recurse -Filter *.csproj
+          if ($projects.Count -eq 0) {
+              Write-Error "No .csproj files found! Check your repository structure."
+              exit 1
+          }
+          if (-not $env:VERSION) {
+              Write-Error "VERSION is not set! Check if tag extraction worked correctly."
+              exit 1
+          }
           foreach ($proj in $projects) {
-              Write-Host "Packing $proj with version $VERSION"
-              dotnet pack "$($proj.FullName)" --configuration Release --output nupkgs /p:Version=$VERSION
+              Write-Host "Packing $proj with version $env:VERSION"
+              dotnet pack "$($proj.FullName)" --configuration Release --output nupkgs /p:PackageVersion=$env:VERSION
           }
 
 
