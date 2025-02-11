@@ -70,6 +70,8 @@ jobs:
         with:
           dotnet-version: ${{ inputs.DOTNET_VERSION }}
           source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_PAT }}
 
       - name: Restore Dependencies
         run: dotnet restore
