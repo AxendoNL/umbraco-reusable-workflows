@@ -1,11 +1,25 @@
-name: Pack and Publish NuGet Packages
+name: Pack and Publish NuGet (GitHub Packages & Releases)
 
 on:
-  push:
-    branches:
-      - release/**
-      - ${{ vars.STABLE_BRANCH_PATTERN }}  # Read from GitHub Repository Variable
-  workflow_dispatch:
+  workflow_call:  # This makes it reusable
+    inputs:
+      STABLE_BRANCH_PATTERN:
+        description: "Branch pattern for stable releases"
+        required: true
+        type: string
+      GITVERSION_SPEC:
+        description: "GitVersion version to use"
+        required: false
+        type: string
+        default: "5.x"
+      DOTNET_VERSION:
+        description: "Dotnet SDK version to use"
+        required: false
+        type: string
+        default: "8.0.x"
+    secrets:
+      GITHUB_TOKEN:
+        required: true
 
 jobs:
   pack-and-publish:
@@ -20,29 +34,41 @@ jobs:
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0
         with:
-          versionSpec: '5.x'
+          versionSpec: ${{ inputs.GITVERSION_SPEC }}
 
       - name: Determine Version with Inline Config
         id: gitversion
         uses: gittools/actions/gitversion/execute@v0
         with:
-          useConfigFile: false  # Disables the need for GitVersion.yml
+          useConfigFile: false
           configure: |
             mode: ContinuousDeployment
             branches:
+              main:
+                regex: ^main$
+                tag: ''
+                is-release-branch: true
+              develop:
+                regex: ^develop$
+                tag: beta
+                is-release-branch: false
               release:
                 regex: ^release[/-]
                 tag: rc
                 is-release-branch: true
+              feature:
+                regex: ^feature[/-]
+                tag: useBranchName
+                is-release-branch: false
               stable:
-                regex: ^${{ vars.STABLE_BRANCH_PATTERN }}$
+                regex: ^${{ inputs.STABLE_BRANCH_PATTERN }}$
                 tag: ''
                 is-release-branch: true
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: ${{ inputs.DOTNET_VERSION }}
           source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
 
       - name: Restore Dependencies
@@ -56,7 +82,7 @@ jobs:
               dotnet pack $proj.FullName --configuration Release --output nupkgs /p:Version=${{ steps.gitversion.outputs.FullSemVer }}
           }
 
-      - name: Publish NuGet Packages
+      - name: Publish NuGet Packages to GitHub Packages
         run: |
           $packages = Get-ChildItem -Path nupkgs -Filter *.nupkg
           foreach ($pkg in $packages) {
@@ -64,3 +90,12 @@ jobs:
                 --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
                 --api-key ${{ secrets.GITHUB_TOKEN }} `
                 --skip-duplicate
+          }
+
+      - name: Create GitHub Release (Stable Only)
+        if: startsWith(github.ref, 'refs/heads/v') || startsWith(github.ref, 'refs/heads/umbraco-')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $TAG_NAME="${{ steps.gitversion.outputs.FullSemVer }}"
+          gh release create "$TAG_NAME" nupkgs/*.nupkg --title "Release $TAG_NAME" --notes "Automatically published from GitHub Actions."
