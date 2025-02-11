@@ -74,7 +74,15 @@ jobs:
           }
 
       - name: Create GitHub Release
+        shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "$VERSION" nupkgs/*.nupkg --title "Release $VERSION" --notes "Automatically published from GitHub Actions."
+          $VERSION = "$env:VERSION"
+          $files = Get-ChildItem -Path "nupkgs" -Filter "*.nupkg" | ForEach-Object { $_.FullName }
+          if ($files.Count -eq 0) {
+              Write-Error "No .nupkg files found in 'nupkgs' directory!"
+              exit 1
+          }
+          gh release create "$VERSION" $files --title "Release $VERSION" --notes "Automatically published from GitHub Actions."
+
