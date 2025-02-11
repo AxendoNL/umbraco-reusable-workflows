@@ -1,0 +1,66 @@
+name: Pack and Publish NuGet Packages
+
+on:
+  push:
+    branches:
+      - release/**
+      - ${{ vars.STABLE_BRANCH_PATTERN }}  # Read from GitHub Repository Variable
+  workflow_dispatch:
+
+jobs:
+  pack-and-publish:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required for GitVersion
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0
+        with:
+          versionSpec: '5.x'
+
+      - name: Determine Version with Inline Config
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0
+        with:
+          useConfigFile: false  # Disables the need for GitVersion.yml
+          configure: |
+            mode: ContinuousDeployment
+            branches:
+              release:
+                regex: ^release[/-]
+                tag: rc
+                is-release-branch: true
+              stable:
+                regex: ^${{ vars.STABLE_BRANCH_PATTERN }}$
+                tag: ''
+                is-release-branch: true
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+          source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+
+      - name: Restore Dependencies
+        run: dotnet restore
+
+      - name: Build and Pack NuGet Packages
+        run: |
+          $projects = Get-ChildItem -Path . -Recurse -Filter *.csproj
+          foreach ($proj in $projects) {
+              Write-Host "Packing $proj with version ${{ steps.gitversion.outputs.FullSemVer }}"
+              dotnet pack $proj.FullName --configuration Release --output nupkgs /p:Version=${{ steps.gitversion.outputs.FullSemVer }}
+          }
+
+      - name: Publish NuGet Packages
+        run: |
+          $packages = Get-ChildItem -Path nupkgs -Filter *.nupkg
+          foreach ($pkg in $packages) {
+              dotnet nuget push $pkg.FullName `
+                --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
+                --api-key ${{ secrets.GITHUB_TOKEN }} `
+                --skip-duplicate
