@@ -3,15 +3,10 @@ name: Pack and Publish NuGet (GitHub Packages & Releases)
 on:
   workflow_call:  # This makes it reusable
     inputs:
-      STABLE_BRANCH_PATTERN:
-        description: "Branch pattern for stable releases"
+      PACKAGE_VERSION:
+        description: "Version number extracted from Git tag"
         required: true
         type: string
-      GITVERSION_SPEC:
-        description: "GitVersion version to use"
-        required: false
-        type: string
-        default: "5.x"
       DOTNET_VERSION:
         description: "Dotnet SDK version to use"
         required: false
@@ -31,23 +26,12 @@ jobs:
         with:
           fetch-depth: 0  # Required for GitVersion
 
-      - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0
-        with:
-          versionSpec: ${{ inputs.GITVERSION_SPEC }}
-
-      - name: Determine Version with Inline Config
-        id: gitversion
-        uses: gittools/actions/gitversion/execute@v0
-        with:
-          useConfigFile: false
-          configure: |
-            mode: ContinuousDeployment
-            branches:
-              stable:
-                regex: ^${{ inputs.STABLE_BRANCH_PATTERN }}$
-                tag: ''
-                is-release-branch: true
+      - name: Strip "v" Prefix from Version
+        id: format_version
+        run: |
+          VERSION=${{ inputs.PACKAGE_VERSION }}
+          VERSION=${VERSION#v}  # Remove'v' prefix if present
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -60,28 +44,16 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore
 
-      - name: Find and Build Projects
-        run: |
-          $projects = Get-ChildItem -Path $GITHUB_WORKSPACE -Recurse -Filter *.csproj
-          if ($projects.Count -eq 0) {
-              Write-Error "No .csproj files found! Check your repository structure."
-              exit 1
-          }
-          foreach ($proj in $projects) {
-              Write-Host "Building $proj.FullName"
-              dotnet build "$($proj.FullName)" --configuration Release
-          }
-
-      - name: Pack NuGet Packages
+      - name: Build and Pack NuGet Packages
         run: |
           $projects = Get-ChildItem -Path $GITHUB_WORKSPACE -Recurse -Filter *.csproj
           foreach ($proj in $projects) {
-              Write-Host "Packing $proj.FullName with version ${{ steps.gitversion.outputs.FullSemVer }}"
-              dotnet pack "$($proj.FullName)" --configuration Release --output nupkgs /p:Version=${{ steps.gitversion.outputs.FullSemVer }}
+              Write-Host "Packing $proj with version $VERSION"
+              dotnet pack "$($proj.FullName)" --configuration Release --output nupkgs /p:Version=$VERSION
           }
 
 
-      - name: Publish NuGet Packages to GitHub Packages
+      - name: Publish NuGet Packages to GitHub Packages (Replace Existing)
         run: |
           $packages = Get-ChildItem -Path nupkgs -Filter *.nupkg
           foreach ($pkg in $packages) {
@@ -91,10 +63,8 @@ jobs:
                 --skip-duplicate
           }
 
-      - name: Create GitHub Release (Stable Only)
-        if: startsWith(github.ref, 'refs/heads/v') || startsWith(github.ref, 'refs/heads/umbraco-')
+      - name: Create GitHub Release
         env:
-          GH_TOKEN: ${{ secrets.NUGET_PAT }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $TAG_NAME="${{ steps.gitversion.outputs.FullSemVer }}"
-          gh release create "$TAG_NAME" nupkgs/*.nupkg --title "Release $TAG_NAME" --notes "Automatically published from GitHub Actions."
+          gh release create "$VERSION" nupkgs/*.nupkg --title "Release $VERSION" --notes "Automatically published from GitHub Actions."
