@@ -18,7 +18,7 @@ on:
         type: string
         default: "8.0.x"
     secrets:
-      GITHUB_TOKEN:
+      NUGET_PAT:
         required: true
 
 jobs:
@@ -88,14 +88,14 @@ jobs:
           foreach ($pkg in $packages) {
               dotnet nuget push $pkg.FullName `
                 --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
-                --api-key ${{ secrets.GITHUB_TOKEN }} `
+                --api-key ${{ secrets.NUGET_PAT }} `
                 --skip-duplicate
           }
 
       - name: Create GitHub Release (Stable Only)
         if: startsWith(github.ref, 'refs/heads/v') || startsWith(github.ref, 'refs/heads/umbraco-')
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.NUGET_PAT }}
         run: |
           $TAG_NAME="${{ steps.gitversion.outputs.FullSemVer }}"
           gh release create "$TAG_NAME" nupkgs/*.nupkg --title "Release $TAG_NAME" --notes "Automatically published from GitHub Actions."
