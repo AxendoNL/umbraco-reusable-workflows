@@ -41,7 +41,7 @@ jobs:
           dotnet-version: ${{ inputs.DOTNET_VERSION }}
           source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
         env:
-          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_WRITE_AND_DELETE }}
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Restore Dependencies
         run: dotnet restore
@@ -69,7 +69,7 @@ jobs:
           foreach ($pkg in $packages) {
               dotnet nuget push $pkg.FullName `
                 --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
-                --api-key ${{ secrets.NUGET_WRITE_AND_DELETE }} `
+                --api-key ${{ secrets.GITHUB_TOKEN  }} `
                 --skip-duplicate
           }
 
