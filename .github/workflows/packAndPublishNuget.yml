@@ -28,10 +28,12 @@ jobs:
 
       - name: Strip "v" Prefix from Version
         id: format_version
+        shell: pwsh
         run: |
-          VERSION=${{ inputs.PACKAGE_VERSION }}
-          VERSION=${VERSION#v}  # Remove'v' prefix if present
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          $VERSION = "${{ inputs.PACKAGE_VERSION }}"
+          $VERSION = $VERSION -replace "^v", ""  # remove the "v" from version tag or manual input
+          echo "VERSION=$VERSION" >> $env:GITHUB_ENV
+
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
