@@ -65,15 +65,22 @@ jobs:
               exit 1
           }
           foreach ($proj in $projects) {
-              Write-Host "Packing $proj with version $env:VERSION and commit $env:COMMIT_HASH"
-              dotnet pack "$($proj.FullName)" --configuration Release --output nupkgs `
-                /p:PackageVersion=$env:VERSION `
-                /p:RepositoryUrl=https://github.com/${{ github.repository }} `
-                /p:RepositoryType=git `
-                /p:RepositoryCommit=$env:COMMIT_HASH `
-                /p:Authors="Axendo BV" `
-                /p:Company="Axendo BV" `
-                /p:Copyright="Axendo BV $env:CURRENT_YEAR"
+            
+              # Read the project file and check if it's explicitly packable
+              $content = Get-Content -Path $proj.FullName -Raw
+              if ($content -match '<IsPackable>\s*true\s*</IsPackable>' -or $content -match '<IsPackable>\s*True\s*</IsPackable>') {
+                  Write-Host "Packing $proj with version $env:VERSION and commit $env:COMMIT_HASH"
+                  dotnet pack "$($proj.FullName)" --configuration Release --output nupkgs `
+                    /p:PackageVersion=$env:VERSION `
+                    /p:RepositoryUrl=https://github.com/${{ github.repository }} `
+                    /p:RepositoryType=git `
+                    /p:RepositoryCommit=$env:COMMIT_HASH `
+                    /p:Authors="Axendo BV" `
+                    /p:Company="Axendo BV" `
+                    /p:Copyright="Axendo BV $env:CURRENT_YEAR"
+              } else {
+                  Write-Host "Skipping non-packable project: $proj"
+              }
           }
 
 
