@@ -24,9 +24,9 @@ jobs:
     steps:
     - name: Delete GitHub workspace artifact folder and .zip 
       run: | 
-        Remove-Item -Recurse -Force ./*
-        Remove-Item -Recurse -Force ./../artifact
-        Remove-Item -Recurse -Force ./../artifact.zip
+        Remove-Item -Recurse -Force ./* -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force ./../artifact -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force ./../artifact.zip -ErrorAction SilentlyContinue
       
   Deploy:
     name: Deploy to Azure
