@@ -37,13 +37,13 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v4.1.8
+        uses: actions/download-artifact@v4
         with:
           name: .net-app
           path: ./../artifact
-      - name: Compress
-        run: Compress-Archive -Path ./../artifact/* -DestinationPath ./../artifact.zip
-        shell: powershell
+#      - name: Compress
+#        run: Compress-Archive -Path ./../artifact/* -DestinationPath ./../artifact.zip
+#        shell: powershell
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3.0.2
@@ -51,7 +51,6 @@ jobs:
           app-name: ${{ inputs.app-name }}
           slot-name: ${{ inputs.slot-name }}
           publish-profile: ${{ secrets.publish-profile }}
-          package: ./../artifact.zip  # Ensure this matches the path where you saved the .zip
-          type: zip
+          package: ./../artifact  # Ensure this matches the path where you saved the .zip
           clean: true
           restart: true
