@@ -22,6 +22,10 @@ on:
       csproj-path:
         required: true
         type: string
+      runner-platform:
+        required: true
+        type: string
+        default: 'self-hosted'
 
 ### Some environment variables to ease use and keep oversight        
 env:
@@ -30,7 +34,7 @@ env:
 jobs:
   Checkout-source:
     name: Checkout source code
-    runs-on: [self-hosted, axendo-v3]
+    runs-on: ["${{ inputs.runner-platform }}"]
     steps:
     - name: git configure long path
       run: git config --global core.longpaths true
