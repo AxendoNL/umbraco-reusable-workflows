@@ -46,7 +46,7 @@ jobs:
     if: inputs.frontend-directory && vars.SKIP_FRONTEND != 'true' 
     name: Build Frontend
     needs: Checkout-source
-    runs-on: [self-hosted, axendo-v3]
+    runs-on: ["${{ inputs.runner-platform }}"]
     steps:
       - name: Build frontend with Webpack
         uses: AxendoNL/webpack-action@v1.2.0
@@ -59,7 +59,7 @@ jobs:
     if: always() && inputs.vue-directory && vars.SKIP_VUE != 'true' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped')
     name: Build Vue
     needs: Build-frontend         
-    runs-on: [self-hosted, axendo-v3]
+    runs-on: ["${{ inputs.runner-platform }}"]
     steps:
       - name: Build vue apps
         uses: AxendoNL/webpack-action@v1.2.0
@@ -72,7 +72,7 @@ jobs:
     name: Build & Publish .NET
     needs: [Build-frontend, Build-vue]
     if: always() && github.ref_name != 'master' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
-    runs-on: [self-hosted, axendo-v3]
+    runs-on: ["${{ inputs.runner-platform }}"]
     steps:
     - name: Setup .NET
       uses: AxendoNL/dotnet-build-action@umbraco-v15
@@ -87,7 +87,7 @@ jobs:
     name: Sync and push to cloud
     if: always() && github.ref_name == 'master' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     needs: [Build-frontend, Build-vue]
-    runs-on: [self-hosted, axendo-v3]
+    runs-on: ["${{ inputs.runner-platform }}"]
     steps:
     - name: Add GitHub PAT to nuget.config
       run: (Get-Content -path .\NuGet.config -Raw) -replace '{PAT}','${{ secrets.NUGET_PAT }}' | Set-Content -Path .\NuGet.config
@@ -104,7 +104,7 @@ jobs:
   cleanup:
     if: always() && vars.SKIP_CLEANUP != 'true'
     needs: [Sync-and-push-to-cloud]
-    runs-on: [self-hosted, axendo-v3]
+    runs-on: ["${{ inputs.runner-platform }}"]
     steps:
       - name: Delete sync folder en files
         uses: AxendoNL/sync-cleanup-action@v9
