@@ -22,10 +22,18 @@ on:
       csproj-path:
         required: true
         type: string
+      app-path-prefix:
+        required: false
+        default: 'Axendo.Umb.'
+        type: string
+      app-path-suffix:
+        required: false
+        default: '.Web'
+        type: string
 
 ### Some environment variables to ease use and keep oversight        
 env:
-  app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
+  app-path: ${{ github.workspace }}\${{ inputs.app-path-prefix }}${{ inputs.organization-name }}.${{ inputs.project-name }}${{ inputs.app-path-suffix }}
 
 jobs:
   Checkout-source:
