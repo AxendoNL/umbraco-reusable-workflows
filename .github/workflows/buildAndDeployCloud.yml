@@ -65,7 +65,7 @@ jobs:
         uses: AxendoNL/webpack-action@v1.2.0
         with:
           directory: ${{ inputs.vue-directory }}
-          output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
+          output-folder: '${{ env.app-path }}\\wwwroot\\assets\vue-apps'
           node-version: '${{vars.VUE_NODE_VERSION}}'
 
   Build-NET:
