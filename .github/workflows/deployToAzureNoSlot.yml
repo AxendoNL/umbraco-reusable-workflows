@@ -1,0 +1,48 @@
+name: Deploy to Azure (Production App Service)
+
+on:
+  workflow_call:
+    inputs:
+      runner-platform:
+        required: true
+        type: string
+        default: 'self-hosted'
+      app-name:
+        required: true
+        type: string
+    secrets:
+      publish-profile:
+        required: true
+
+jobs:
+  Prepare:
+    name: Prepare working directory
+    runs-on: ["${{ inputs.runner-platform }}"]
+    steps:
+    - name: Delete GitHub workspace artifact folder and .zip 
+      run: | 
+        Remove-Item -Recurse -Force ./* -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force ./../artifact -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force ./../artifact.zip -ErrorAction SilentlyContinue
+      
+  Deploy:
+    name: Deploy to Azure
+    needs: Prepare
+    runs-on: ["${{ inputs.runner-platform }}"]
+    environment:
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: .net-app
+          path: ./../artifact
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ inputs.app-name }}
+          publish-profile: ${{ secrets.publish-profile }}
+          package: ./../artifact  # Ensure this matches the path where you saved the .zip
+          clean: true
+          restart: true
