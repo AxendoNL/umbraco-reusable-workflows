@@ -30,6 +30,7 @@ jobs:
     needs: Prepare
     runs-on: ["${{ inputs.runner-platform }}"]
     environment:
+      name: Production
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     steps:
       - name: Download artifact from build job
