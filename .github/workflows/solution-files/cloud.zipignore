@@ -29,6 +29,9 @@ SMTP/*
 umbraco/Data/TEMP/*
 umbraco/Logs/*
 
+## Claude Code and MCP configuration
+.claude/*
+.mcp.json
 
 ## ignore this file
 cloud.zipignore
