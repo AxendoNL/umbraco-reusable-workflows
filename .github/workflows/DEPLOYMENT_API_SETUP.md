@@ -12,8 +12,8 @@ Configure these secrets in your repository settings (Settings > Secrets and vari
 
 | Secret Name | Description | How to Obtain |
 |-------------|-------------|---------------|
-| `UMBRACO_CLOUD_PROJECT_ID` | Your Umbraco Cloud project GUID | Found in Umbraco Cloud portal under Project Settings |
-| `UMBRACO_CLOUD_API_KEY` | API key for Umbraco Cloud API access | Generate in Umbraco Cloud portal under Project Settings > API Keys |
+| `PROJECTID` | Your Umbraco Cloud project GUID | Found in Umbraco Cloud portal under Project Settings |
+| `UMBRACOCLOUDAPIKEY` | API key for Umbraco Cloud API access | Generate in Umbraco Cloud portal under Project Settings > API Keys |
 | `NUGET_PAT` | GitHub Personal Access Token for NuGet packages | Existing secret (already configured) |
 
 ## Required GitHub Variables
@@ -23,8 +23,8 @@ Configure these variables in your repository settings (Settings > Secrets and va
 | Variable Name | Description | Default | Example |
 |---------------|-------------|---------|---------|
 | `TARGET_ENVIRONMENT_ALIAS` | Target environment to deploy to | - | `live` or `staging` |
-| `NO_BUILD_AND_RESTORE` | Skip build and restore on cloud (0=false, 1=true) | `0` | `0` |
-| `SKIP_VERSION_CHECK` | Skip Umbraco version check (0=false, 1=true) | `0` | `0` |
+| `NOBUILDANDRESTORE` | Skip build and restore on cloud (0=false, 1=true) | `0` | `0` |
+| `SKIPVERSIONCHECK` | Skip Umbraco version check (0=false, 1=true) | `0` | `0` |
 
 ### Optional Variables (Existing)
 
