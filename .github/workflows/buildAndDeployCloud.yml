@@ -97,12 +97,12 @@ jobs:
         secrets: ${{ toJSON(vars) }}
     - uses: AxendoNL/sync-changes-to-cloud-action@deployment-api
       with:
-        project-id: ${{ secrets.UMBRACO_CLOUD_PROJECT_ID }}
-        api-key: ${{ secrets.UMBRACO_CLOUD_API_KEY }}
+        project-id: ${{ secrets.PROJECTID }}
+        api-key: ${{ secrets.UMBRACOCLOUDAPIKEY }}
         target-environment-alias: ${{ vars.TARGET_ENVIRONMENT_ALIAS }}
         from-dir: ./
-        no-build-and-restore: ${{ vars.NO_BUILD_AND_RESTORE || '0' }}
-        skip-version-check: ${{ vars.SKIP_VERSION_CHECK || '0' }}
+        no-build-and-restore: ${{ vars.NOBUILDANDRESTORE || '0' }}
+        skip-version-check: ${{ vars.SKIPVERSIONCHECK || '0' }}
         frontend-directory: ${{ inputs.frontend-directory }}
         vue-directory: ${{ inputs.vue-directory }}
 
