@@ -75,7 +75,7 @@ jobs:
       env:
         Umbraco.CMS.RuntimeMinification.version: ${{github.run_number}}
     - name: Dotnet publish
-      run: dotnet publish ${{ inputs.csproj-path }} -c Release -o ./myapp
+      run: dotnet publish ${{ inputs.csproj-path }} -c Release -o ./myapp --runtime win-x64  -p:SatelliteResourceLanguages="""en"""
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4.6.2
