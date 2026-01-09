@@ -1,4 +1,4 @@
-name: Build and deploy changes Umbraco V15
+name: Build and deploy changes Umbraco V17
 
 on:
   workflow_call:
@@ -71,7 +71,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
     - name: Setup .NET
-      uses: AxendoNL/dotnet-build-action@umbraco-v15
+      uses: AxendoNL/dotnet-build-action@umbraco-v17
       with:
         organization-name: ${{ inputs.organization-name }}
         project-name: ${{ inputs.project-name }}

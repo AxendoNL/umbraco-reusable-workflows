@@ -1,4 +1,4 @@
-name: Build and deploy changes Umbraco V15
+name: Build and deploy changes Umbraco V17
 
 on:
   workflow_call:
@@ -63,7 +63,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.x'
+        dotnet-version: '10.x'
     - name: Add GitHub PAT to nuget.config
       run: (Get-Content -path .\NuGet.config -Raw) -replace '{PAT}','${{ secrets.NUGET_PAT }}' | Set-Content -Path .\NuGet.config
       shell: powershell
