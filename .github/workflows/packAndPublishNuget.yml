@@ -1,0 +1,109 @@
+name: Pack and Publish NuGet (GitHub Packages & Releases)
+
+on:
+  workflow_call:  # This makes it reusable
+    inputs:
+      PACKAGE_VERSION:
+        description: "Version number extracted from Git tag"
+        required: true
+        type: string
+      DOTNET_VERSION:
+        description: "Dotnet SDK version to use"
+        required: false
+        type: string
+        default: "10.x"
+    secrets:
+      NUGET_WRITE_AND_DELETE:
+        required: true
+
+jobs:
+  pack-and-publish:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required for GitVersion
+
+      - name: Strip "v" Prefix from Version
+        id: format_version
+        shell: pwsh
+        run: |
+          $VERSION = "${{ inputs.PACKAGE_VERSION }}"
+          $VERSION = $VERSION -replace "^v", ""  # remove the "v" from version tag or manual input
+          echo "VERSION=$VERSION" >> $env:GITHUB_ENV
+
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ inputs.DOTNET_VERSION }}
+          source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.NUGET_WRITE_AND_DELETE }}
+
+      - name: Restore Dependencies
+        run: dotnet restore
+        
+      - name: Extract Commit Hash & Current Year
+        id: extract_info
+        shell: pwsh
+        run: |
+          echo "COMMIT_HASH=${{ github.sha }}" >> $env:GITHUB_ENV
+          echo "CURRENT_YEAR=$(Get-Date -Format yyyy)" >> $env:GITHUB_ENV
+
+      - name: Build and Pack NuGet Packages
+        run: |
+          $projects = Get-ChildItem -Path $GITHUB_WORKSPACE -Recurse -Filter *.csproj
+          if ($projects.Count -eq 0) {
+              Write-Error "No .csproj files found! Check your repository structure."
+              exit 1
+          }
+          if (-not $env:VERSION) {
+              Write-Error "VERSION is not set! Check if tag extraction worked correctly."
+              exit 1
+          }
+          foreach ($proj in $projects) {
+            
+              # Read the project file and check if it's explicitly packable
+              $content = Get-Content -Path $proj.FullName -Raw
+              if ($content -match '<IsPackable>\s*true\s*</IsPackable>' -or $content -match '<IsPackable>\s*True\s*</IsPackable>') {
+                  Write-Host "Packing $proj with version $env:VERSION and commit $env:COMMIT_HASH"
+                  dotnet pack "$($proj.FullName)" --configuration Release --output nupkgs `
+                    /p:PackageVersion=$env:VERSION `
+                    /p:RepositoryUrl=https://github.com/${{ github.repository }} `
+                    /p:RepositoryType=git `
+                    /p:RepositoryCommit=$env:COMMIT_HASH `
+                    /p:Authors="Axendo BV" `
+                    /p:Company="Axendo BV" `
+                    /p:Copyright="Axendo BV $env:CURRENT_YEAR"
+              } else {
+                  Write-Host "Skipping non-packable project: $proj"
+              }
+          }
+
+
+      - name: Publish NuGet Packages to GitHub Packages (Replace Existing)
+        run: |
+          $packages = Get-ChildItem -Path nupkgs -Filter *.nupkg
+          foreach ($pkg in $packages) {
+              dotnet nuget push $pkg.FullName `
+                --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" `
+                --api-key ${{ secrets.NUGET_WRITE_AND_DELETE  }} `
+                --skip-duplicate
+          }
+
+      - name: Create GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.NUGET_WRITE_AND_DELETE }}
+        run: |
+          $VERSION = "$env:VERSION"
+          $files = Get-ChildItem -Path "nupkgs" -Filter "*.nupkg" | ForEach-Object { $_.FullName }
+          if ($files.Count -eq 0) {
+              Write-Error "No .nupkg files found in 'nupkgs' directory!"
+              exit 1
+          }
+          gh release create "$VERSION" $files --title "Release $VERSION" --notes "Automatically published from GitHub Actions."
+
