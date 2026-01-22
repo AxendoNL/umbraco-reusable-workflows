@@ -30,7 +30,6 @@ on:
 ### Some environment variables to ease use and keep oversight        
 env:
   app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
-  publish-branch: ${{vars.PUBLISH_BRANCH}}
 
 jobs:
   Checkout-source:
@@ -72,7 +71,7 @@ jobs:
   Build-NET:
     name: Build & Publish .NET
     needs: [Build-frontend, Build-vue]
-    if: always() && github.ref_name != '${{ env.publish-branch }}' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
+    if: always() && github.ref_name != '${{ vars.PUBLISH_BRANCH }}' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     runs-on: ["${{ inputs.runner-platform }}"]
     steps:
     - name: Setup .NET
@@ -86,7 +85,7 @@ jobs:
 
   Sync-and-push-to-cloud:
     name: Sync and push to cloud
-    if: always() && github.ref_name == '${{ env.publish-branch }}' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
+    if: always() && github.ref_name == '${{ vars.PUBLISH_BRANCH }}' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     needs: [Build-frontend, Build-vue]
     runs-on: ["${{ inputs.runner-platform }}"]
     steps:
