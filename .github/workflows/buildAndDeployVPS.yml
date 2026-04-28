@@ -81,7 +81,7 @@ jobs:
           echo "archive_path=${{ github.workspace }}/Archive/${{ inputs.organization-name }}/${{ inputs.project-name }}/${{ github.ref_name }}" >> $env:GITHUB_ENV      
           echo "application_path=${{ github.workspace }}/${{vars.APP_PATH_PREFIX}}${{ inputs.organization-name }}.${{ inputs.project-name }}${{vars.APP_PATH_SUFFIX}}" >> $env:GITHUB_ENV
       - name: Setup .NET
-        uses: AxendoNL/dotnet-package-action@v12
+        uses: AxendoNL/dotnet-package-action@umbraco-v13
         with:
           organization-name: ${{ inputs.organization-name }}
           project-name: ${{ inputs.project-name }}
