@@ -443,3 +443,6 @@ FodyWeavers.xsd
 **/*sqlite.db*
 
 **/wwwroot/media/
+
+# Cloud-sync workflow workdir (git-patch.diff is alleen voor het sync-proces)
+patch/
