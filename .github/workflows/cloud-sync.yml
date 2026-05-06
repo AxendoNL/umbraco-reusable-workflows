@@ -31,7 +31,7 @@ jobs:
         id: latest-deployment
         shell: pwsh
         run: >
-          ${{GITHUB.WORKSPACE}}/.github/workflows/powershell/Get-LatestDeployment.ps1
+          ${{GITHUB.WORKSPACE}}/.github/powershell/Get-LatestDeployment.ps1
           -ProjectId ${{ secrets.projectId }}
           -ApiKey ${{ secrets.umbracoCloudApiKey }}
           -TargetEnvironmentAlias ${{ inputs.targetEnvironmentAlias }}
@@ -52,7 +52,7 @@ jobs:
         id: latest-changes
         shell: pwsh
         run: >
-          ${{GITHUB.WORKSPACE}}/.github/workflows/powershell/Get-ChangesById.ps1
+          ${{GITHUB.WORKSPACE}}/.github/powershell/Get-ChangesById.ps1
           -ProjectId ${{ secrets.projectId }}
           -ApiKey ${{ secrets.umbracoCloudApiKey }}
           -DeploymentId ${{ env.latestDeploymentId }}
@@ -106,7 +106,7 @@ jobs:
         if: ${{ env.remoteChanges == 'yes' }}
         shell: pwsh
         run: >
-          ${{GITHUB.WORKSPACE}}/.github/workflows/powershell/Apply-Patch.ps1
+          ${{GITHUB.WORKSPACE}}/.github/powershell/Apply-Patch.ps1
           -PatchFile ${{ GITHUB.WORKSPACE }}/patch/git-patch.diff
           -LatestDeploymentId ${{ env.latestDeploymentId }}
           -PipelineVendor GITHUB
