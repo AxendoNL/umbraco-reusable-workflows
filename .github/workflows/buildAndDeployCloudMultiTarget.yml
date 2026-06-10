@@ -1,0 +1,138 @@
+name: Build and deploy changes Umbraco - Cloud (multi-target)
+
+# Variant van buildAndDeployCloud.yml waarbij project-id, api-key, target-environment-alias
+# en publish-branch via inputs/secrets worden meegegeven i.p.v. via repo-vaste secrets/vars.
+# Hierdoor kan één repo naar meerdere Cloud-projecten deployen (bijv. master -> v13-project,
+# een upgrade-branch -> v17-project). De originele buildAndDeployCloud.yml blijft ongewijzigd.
+
+on:
+  workflow_call:
+    inputs:
+      frontend-directory:
+        required: false
+        type: string
+      vue-directory:
+        required: false
+        type: string
+      organization-name:
+        required: true
+        type: string
+      project-name:
+        required: true
+        type: string
+      build-configuration:
+        required: true
+        default: 'release'
+        type: string
+      csproj-path:
+        required: true
+        type: string
+      runner-platform:
+        required: true
+        type: string
+        default: 'self-hosted'
+      # Multi-target specifiek:
+      publish-branch:
+        required: true
+        type: string
+        description: 'De branch die naar Cloud deployt (komt in plaats van vars.PUBLISH_BRANCH)'
+      target-environment-alias:
+        required: true
+        type: string
+        description: 'Cloud environment-alias van het doelproject (komt in plaats van vars.TARGET_ENVIRONMENT_ALIAS)'
+    secrets:
+      PROJECTID:
+        required: true
+      UMBRACOCLOUDAPIKEY:
+        required: true
+      NUGET_PAT:
+        required: true
+
+### Some environment variables to ease use and keep oversight
+env:
+  app-path: ${{ github.workspace }}\Axendo.Umb.${{ inputs.organization-name }}.${{ inputs.project-name }}.Web
+
+jobs:
+  Checkout-source:
+    name: Checkout source code
+    runs-on: ["${{ inputs.runner-platform }}"]
+    steps:
+    - name: git configure long path
+      run: git config --global core.longpaths true
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
+
+  Build-frontend:
+    if: inputs.frontend-directory && vars.SKIP_FRONTEND != 'true'
+    name: Build Frontend
+    needs: Checkout-source
+    runs-on: ["${{ inputs.runner-platform }}"]
+    steps:
+      - name: Build frontend with Webpack
+        uses: AxendoNL/webpack-action@v1.2.0
+        with:
+          directory: ${{ inputs.frontend-directory }}
+          output-folder: '${{ env.app-path }}${{vars.FRONTEND_OUTPUT_PATH}}'
+          node-version: '${{vars.FRONTEND_NODE_VERSION}}'
+
+  Build-vue:
+    if: always() && inputs.vue-directory && vars.SKIP_VUE != 'true' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped')
+    name: Build Vue
+    needs: Build-frontend
+    runs-on: ["${{ inputs.runner-platform }}"]
+    steps:
+      - name: Build vue apps
+        uses: AxendoNL/webpack-action@v1.2.0
+        with:
+          directory: ${{ inputs.vue-directory }}
+          output-folder: '${{ env.app-path }}${{vars.VUE_OUTPUT_PATH}}'
+          node-version: '${{vars.VUE_NODE_VERSION}}'
+
+  Build-NET:
+    name: Build & Publish .NET
+    needs: [Build-frontend, Build-vue]
+    if: always() && github.ref_name != inputs.publish-branch && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
+    runs-on: ["${{ inputs.runner-platform }}"]
+    steps:
+    - name: Setup .NET
+      uses: AxendoNL/dotnet-build-action@umbraco-v15
+      with:
+        organization-name: ${{ inputs.organization-name }}
+        project-name: ${{ inputs.project-name }}
+        build-configuration: ${{ inputs.build-configuration }}
+        csproj-path: ${{ inputs.csproj-path }}
+        token: ${{ secrets.NUGET_PAT }}
+
+  Sync-and-push-to-cloud:
+    name: Sync and push to cloud
+    if: always() && github.ref_name == inputs.publish-branch && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
+    needs: [Build-frontend, Build-vue]
+    runs-on: ["${{ inputs.runner-platform }}"]
+    steps:
+    - name: Add GitHub PAT to nuget.config
+      run: (Get-Content -path .\NuGet.config -Raw) -replace '{PAT}','${{ secrets.NUGET_PAT }}' | Set-Content -Path .\NuGet.config
+      shell: powershell
+    - uses: oNaiPs/secrets-to-env-action@v1.3 # Load VARS
+      with:
+        secrets: ${{ toJSON(vars) }}
+    - uses: AxendoNL/sync-changes-to-cloud-action@deployment-api
+      with:
+        project-id: ${{ secrets.PROJECTID }}
+        api-key: ${{ secrets.UMBRACOCLOUDAPIKEY }}
+        target-environment-alias: ${{ inputs.target-environment-alias }}
+        from-dir: ./
+        no-build-and-restore: ${{ vars.NOBUILDANDRESTORE || '0' }}
+        skip-version-check: ${{ vars.SKIPVERSIONCHECK || '0' }}
+        frontend-directory: ${{ inputs.frontend-directory }}
+        vue-directory: ${{ inputs.vue-directory }}
+
+  cleanup:
+    if: always() && vars.SKIP_CLEANUP != 'true'
+    needs: [Sync-and-push-to-cloud]
+    runs-on: ["${{ inputs.runner-platform }}"]
+    steps:
+      - name: Delete sync folder en files
+        uses: AxendoNL/sync-cleanup-action@v9
+      - name: Delete GitHub workspace
+        run: Remove-Item -Recurse -Force ./*
