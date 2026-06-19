@@ -96,13 +96,14 @@ jobs:
     runs-on: ["${{ inputs.runner-platform }}"]
     steps:
     - name: Setup .NET
-      uses: AxendoNL/dotnet-build-action@umbraco-v15
+      uses: AxendoNL/dotnet-build-action@deployment-api
       with:
         organization-name: ${{ inputs.organization-name }}
         project-name: ${{ inputs.project-name }}
         build-configuration: ${{ inputs.build-configuration }}
         csproj-path: ${{ inputs.csproj-path }}
         token: ${{ secrets.NUGET_PAT }}
+        dotnet-version: ${{ vars.DOTNET_VERSION }}
 
   Sync-and-push-to-cloud:
     name: Sync and push to cloud
