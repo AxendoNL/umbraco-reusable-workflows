@@ -49,7 +49,7 @@ jobs:
     runs-on: ["${{ inputs.runner-platform }}"]
     steps:
       - name: Build frontend with Webpack
-        uses: AxendoNL/webpack-action@v1
+        uses: AxendoNL/webpack-action@v1.3.0
         with:
           directory: ${{ inputs.frontend-directory }}
           output-folder: '${{ env.app-path }}${{vars.FRONTEND_OUTPUT_PATH}}'
@@ -62,7 +62,7 @@ jobs:
     runs-on: ["${{ inputs.runner-platform }}"]
     steps:
       - name: Build vue apps
-        uses: AxendoNL/webpack-action@v1
+        uses: AxendoNL/webpack-action@v1.3.0
         with:
           directory: ${{ inputs.vue-directory }}
           output-folder: '${{ env.app-path }}${{vars.VUE_OUTPUT_PATH}}'
