@@ -1,4 +1,4 @@
-name: Build and deploy changes Umbraco V15 - Cloud
+name: Build and deploy changes Umbraco - Cloud
 
 on:
   workflow_call:
@@ -38,7 +38,7 @@ jobs:
     steps:
     - name: git configure long path
       run: git config --global core.longpaths true
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with: 
         fetch-depth: 0 #fetch-depth 0 indicates fetching all history, this is needed for frontend en vue caching
 
@@ -49,7 +49,7 @@ jobs:
     runs-on: ["${{ inputs.runner-platform }}"]
     steps:
       - name: Build frontend with Webpack
-        uses: AxendoNL/webpack-action@v1.2.0
+        uses: AxendoNL/webpack-action@v1
         with:
           directory: ${{ inputs.frontend-directory }}
           output-folder: '${{ env.app-path }}${{vars.FRONTEND_OUTPUT_PATH}}'
@@ -62,7 +62,7 @@ jobs:
     runs-on: ["${{ inputs.runner-platform }}"]
     steps:
       - name: Build vue apps
-        uses: AxendoNL/webpack-action@v1.2.0
+        uses: AxendoNL/webpack-action@v1
         with:
           directory: ${{ inputs.vue-directory }}
           output-folder: '${{ env.app-path }}${{vars.VUE_OUTPUT_PATH}}'
@@ -92,7 +92,7 @@ jobs:
     - name: Add GitHub PAT to nuget.config
       run: (Get-Content -path .\NuGet.config -Raw) -replace '{PAT}','${{ secrets.NUGET_PAT }}' | Set-Content -Path .\NuGet.config
       shell: powershell
-    - uses: oNaiPs/secrets-to-env-action@v1.3 # Load VARS
+    - uses: oNaiPs/secrets-to-env-action@v1 # Load VARS
       with:
         secrets: ${{ toJSON(vars) }}
     - uses: AxendoNL/sync-changes-to-cloud-action@deployment-api
