@@ -60,6 +60,28 @@ jobs:
           -DownloadFolder ${{GITHUB.WORKSPACE}}/patch
           -PipelineVendor GITHUB
 
+      - name: Strip build-managed files from patch
+        if: ${{ steps.latest-changes.outputs.remoteChanges == 'yes' }}
+        shell: pwsh
+        run: |
+          # Bestanden die door de build/deploy-workflow worden gezet en dus altijd
+          # afwijken van Cloud (bv. RuntimeMinification.version). Uit de patch strippen
+          # zodat git apply niet faalt op een conflict dat we sowieso niet willen syncen.
+          $patch = "${{ GITHUB.WORKSPACE }}/patch/git-patch.diff"
+          $exclude = @('appsettings.json')
+          $raw = [IO.File]::ReadAllText($patch)
+          $blocks = [regex]::Split($raw, '(?=^diff --git )', [Text.RegularExpressions.RegexOptions]::Multiline) | Where-Object { $_ -ne '' }
+          $kept = foreach ($b in $blocks) {
+              $header = ($b -split "`n")[0]
+              $drop = $false
+              foreach ($p in $exclude) {
+                  if ($header -match 'diff --git a/(.+?) b/' -and $Matches[1] -like "*$p") { $drop = $true; break }
+              }
+              if ($drop) { Write-Host "Excluding from patch: $($header.Trim())"; continue }
+              $b
+          }
+          [IO.File]::WriteAllText($patch, ($kept -join ''))
+
       - name: See diff content if any
         if: ${{ steps.latest-changes.outputs.remoteChanges == 'yes' }}
         shell: pwsh
