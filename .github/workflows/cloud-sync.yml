@@ -143,8 +143,8 @@ jobs:
   notifyFailure:
     name: Notify on failed sync
     needs: [preflight, checkForChanges, applyRemoteChanges]
-    # Alleen wanneer het toepassen van de patch faalde EN er ook echt remote changes waren.
-    if: ${{ always() && needs.applyRemoteChanges.result == 'failure' && needs.checkForChanges.outputs.remoteChanges == 'yes' }}
+    # Vuurt bij elke gefaalde job in de sync; niet bij skips of geannuleerde runs.
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
     runs-on: ["${{ inputs.runner-platform }}"]
     steps:
       - name: Send failure notification via Postmark
@@ -158,6 +158,9 @@ jobs:
           MAIL_CC: ${{ vars.NOTIFICATION_CC }}
           TARGET: ${{ inputs.targetEnvironmentAlias }}
           DEPLOYMENT_ID: ${{ needs.preflight.outputs.latestDeploymentId }}
+          RESULT_PREFLIGHT: ${{ needs.preflight.result }}
+          RESULT_CHECK: ${{ needs.checkForChanges.result }}
+          RESULT_APPLY: ${{ needs.applyRemoteChanges.result }}
           REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
@@ -170,33 +173,47 @@ jobs:
               exit 0
           }
 
+          # Bepaal welke job faalde voor een passende omschrijving in de mail.
+          if ($env:RESULT_APPLY -eq 'failure') {
+              $failedJob = 'Apply remote changes'
+              $reason = 'De patch kon waarschijnlijk niet schoon worden toegepast (merge-conflict in Apply-Patch). De git-patch artifact hangt aan de run.'
+          }
+          elseif ($env:RESULT_CHECK -eq 'failure') {
+              $failedJob = 'Check if there are changes since latest deployment'
+              $reason = 'Het ophalen van de remote changes van Umbraco Cloud is mislukt.'
+          }
+          else {
+              $failedJob = 'Check Cloud for changes (preflight)'
+              $reason = 'Het ophalen van de laatste deployment is mislukt; controleer API-key, project-id en de aanwezigheid van de PowerShell-scripts.'
+          }
+
+          $deployment = if ([string]::IsNullOrWhiteSpace($env:DEPLOYMENT_ID)) { 'onbekend' } else { $env:DEPLOYMENT_ID }
+
           $subject = "[Umbraco Cloud Sync] MISLUKT - $($env:REPO) / $($env:TARGET)"
 
           $html = @"
           <h2>Umbraco Cloud Sync mislukt</h2>
-          <p>De automatische sync van Umbraco Cloud naar de repository is mislukt terwijl er
-          wel remote changes waren om toe te passen.</p>
+          <p>De automatische sync van Umbraco Cloud naar de repository is mislukt.</p>
           <ul>
             <li><strong>Repository:</strong> $($env:REPO)</li>
             <li><strong>Target environment:</strong> $($env:TARGET)</li>
-            <li><strong>Deployment ID:</strong> $($env:DEPLOYMENT_ID)</li>
+            <li><strong>Gefaalde job:</strong> $failedJob</li>
+            <li><strong>Deployment ID:</strong> $deployment</li>
           </ul>
-          <p>De patch kon waarschijnlijk niet schoon worden toegepast (merge-conflict in
-          <code>Apply-Patch</code>).</p>
-          <p><a href="$($env:RUN_URL)">Bekijk de workflow-run &amp; logs</a> &mdash; de
-          <code>git-patch</code> artifact hangt aan de run.</p>
+          <p>$reason</p>
+          <p><a href="$($env:RUN_URL)">Bekijk de workflow-run &amp; logs</a></p>
           "@
 
           $text = @"
           Umbraco Cloud Sync mislukt.
 
-          Repository:  $($env:REPO)
-          Target:      $($env:TARGET)
-          Deployment:  $($env:DEPLOYMENT_ID)
+          Repository:   $($env:REPO)
+          Target:       $($env:TARGET)
+          Gefaalde job: $failedJob
+          Deployment:   $deployment
 
-          De patch kon waarschijnlijk niet schoon worden toegepast (merge-conflict in Apply-Patch).
+          $reason
           Run & logs: $($env:RUN_URL)
-          De git-patch artifact hangt aan de run.
           "@
 
           $body = @{
