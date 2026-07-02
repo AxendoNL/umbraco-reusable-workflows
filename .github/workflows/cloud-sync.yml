@@ -15,11 +15,29 @@ on:
         required: true
         type: string
         default: 'self-hosted'
+      notificationFrom:
+        description: 'Geverifieerd Postmark afzender-adres voor failure-notificaties. Leeg = notificatie uit.'
+        required: false
+        type: string
+        default: ''
+      notificationTo:
+        description: 'Komma-gescheiden ontvanger(s) van failure-notificaties. Leeg = notificatie uit.'
+        required: false
+        type: string
+        default: ''
+      notificationCc:
+        description: 'Optionele komma-gescheiden CC-ontvanger(s) van failure-notificaties.'
+        required: false
+        type: string
+        default: ''
     secrets:
       projectId:
         required: true
       umbracoCloudApiKey:
         required: true
+      postmarkServerToken:
+        description: 'Postmark Server API Token voor het versturen van failure-notificaties.'
+        required: false
 
 jobs:
   preflight:
@@ -136,3 +154,87 @@ jobs:
           -GitUserEmail ${{ env.gitEmail }}
     outputs:
       newSha: ${{ steps.update-bundle.outputs.updatedSha }}
+
+  notifyFailure:
+    name: Notify on failed sync
+    needs: [preflight, checkForChanges, applyRemoteChanges]
+    # Alleen wanneer het toepassen van de patch faalde EN er ook echt remote changes waren.
+    if: ${{ always() && needs.applyRemoteChanges.result == 'failure' && needs.checkForChanges.outputs.remoteChanges == 'yes' }}
+    runs-on: ["${{ inputs.runner-platform }}"]
+    steps:
+      - name: Send failure notification via Postmark
+        shell: pwsh
+        env:
+          POSTMARK_TOKEN: ${{ secrets.postmarkServerToken }}
+          MAIL_FROM: ${{ inputs.notificationFrom }}
+          MAIL_TO: ${{ inputs.notificationTo }}
+          MAIL_CC: ${{ inputs.notificationCc }}
+          TARGET: ${{ inputs.targetEnvironmentAlias }}
+          DEPLOYMENT_ID: ${{ needs.preflight.outputs.latestDeploymentId }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # Notificatie is optioneel: als token/from/to niet is geconfigureerd, gewoon overslaan
+          # zodat callers die dit (nog) niet hebben ingericht niet falen.
+          if ([string]::IsNullOrWhiteSpace($env:POSTMARK_TOKEN) -or
+              [string]::IsNullOrWhiteSpace($env:MAIL_FROM) -or
+              [string]::IsNullOrWhiteSpace($env:MAIL_TO)) {
+              Write-Host "::warning::Postmark-notificatie niet geconfigureerd (token/from/to ontbreekt) - overslaan."
+              exit 0
+          }
+
+          $subject = "[Umbraco Cloud Sync] MISLUKT - $($env:REPO) / $($env:TARGET)"
+
+          $html = @"
+          <h2>Umbraco Cloud Sync mislukt</h2>
+          <p>De automatische sync van Umbraco Cloud naar de repository is mislukt terwijl er
+          wel remote changes waren om toe te passen.</p>
+          <ul>
+            <li><strong>Repository:</strong> $($env:REPO)</li>
+            <li><strong>Target environment:</strong> $($env:TARGET)</li>
+            <li><strong>Deployment ID:</strong> $($env:DEPLOYMENT_ID)</li>
+          </ul>
+          <p>De patch kon waarschijnlijk niet schoon worden toegepast (merge-conflict in
+          <code>Apply-Patch</code>).</p>
+          <p><a href="$($env:RUN_URL)">Bekijk de workflow-run &amp; logs</a> &mdash; de
+          <code>git-patch</code> artifact hangt aan de run.</p>
+          "@
+
+          $text = @"
+          Umbraco Cloud Sync mislukt.
+
+          Repository:  $($env:REPO)
+          Target:      $($env:TARGET)
+          Deployment:  $($env:DEPLOYMENT_ID)
+
+          De patch kon waarschijnlijk niet schoon worden toegepast (merge-conflict in Apply-Patch).
+          Run & logs: $($env:RUN_URL)
+          De git-patch artifact hangt aan de run.
+          "@
+
+          $body = @{
+              From          = $env:MAIL_FROM
+              To            = $env:MAIL_TO
+              Subject       = $subject
+              HtmlBody      = $html
+              TextBody      = $text
+              MessageStream = "outbound"
+          }
+          if (-not [string]::IsNullOrWhiteSpace($env:MAIL_CC)) { $body.Cc = $env:MAIL_CC }
+
+          $headers = @{
+              "Accept"                  = "application/json"
+              "Content-Type"            = "application/json"
+              "X-Postmark-Server-Token" = $env:POSTMARK_TOKEN
+          }
+
+          try {
+              $json = $body | ConvertTo-Json -Depth 5
+              $resp = Invoke-RestMethod -Uri "https://api.postmarkapp.com/email" -Method Post -Headers $headers -Body $json
+              Write-Host "Notificatie verzonden. MessageID: $($resp.MessageID)"
+          }
+          catch {
+              Write-Host "::error::Versturen Postmark-notificatie mislukt: $($_.Exception.Message)"
+              if ($_.ErrorDetails) { Write-Host $_.ErrorDetails.Message }
+              exit 1
+          }
