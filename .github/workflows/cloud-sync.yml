@@ -15,21 +15,6 @@ on:
         required: true
         type: string
         default: 'self-hosted'
-      notificationFrom:
-        description: 'Geverifieerd Postmark afzender-adres voor failure-notificaties. Leeg = notificatie uit.'
-        required: false
-        type: string
-        default: ''
-      notificationTo:
-        description: 'Komma-gescheiden ontvanger(s) van failure-notificaties. Leeg = notificatie uit.'
-        required: false
-        type: string
-        default: ''
-      notificationCc:
-        description: 'Optionele komma-gescheiden CC-ontvanger(s) van failure-notificaties.'
-        required: false
-        type: string
-        default: ''
     secrets:
       projectId:
         required: true
@@ -166,9 +151,11 @@ jobs:
         shell: pwsh
         env:
           POSTMARK_TOKEN: ${{ secrets.postmarkServerToken }}
-          MAIL_FROM: ${{ inputs.notificationFrom }}
-          MAIL_TO: ${{ inputs.notificationTo }}
-          MAIL_CC: ${{ inputs.notificationCc }}
+          # vars komen uit de caller repo/org: NOTIFICATION_FROM = geverifieerd Postmark
+          # afzender-adres, NOTIFICATION_TO/CC = komma-gescheiden ontvangers.
+          MAIL_FROM: ${{ vars.NOTIFICATION_FROM }}
+          MAIL_TO: ${{ vars.NOTIFICATION_TO }}
+          MAIL_CC: ${{ vars.NOTIFICATION_CC }}
           TARGET: ${{ inputs.targetEnvironmentAlias }}
           DEPLOYMENT_ID: ${{ needs.preflight.outputs.latestDeploymentId }}
           REPO: ${{ github.repository }}
