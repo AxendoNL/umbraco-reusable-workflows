@@ -83,6 +83,7 @@ jobs:
         csproj-path: ${{ inputs.csproj-path }}
         token: ${{ secrets.NUGET_PAT }}
         dotnet-version: ${{ vars.DOTNET_VERSION }}
+        node-version: ${{ vars.FRONTEND_NODE_VERSION }}
 
   Sync-and-push-to-cloud:
     name: Sync and push to cloud
