@@ -166,10 +166,12 @@ jobs:
         run: |
           # Notificatie is optioneel: als token/from/to niet is geconfigureerd, gewoon overslaan
           # zodat callers die dit (nog) niet hebben ingericht niet falen.
-          if ([string]::IsNullOrWhiteSpace($env:POSTMARK_TOKEN) -or
-              [string]::IsNullOrWhiteSpace($env:MAIL_FROM) -or
-              [string]::IsNullOrWhiteSpace($env:MAIL_TO)) {
-              Write-Host "::warning::Postmark-notificatie niet geconfigureerd (token/from/to ontbreekt) - overslaan."
+          $missing = @()
+          if ([string]::IsNullOrWhiteSpace($env:POSTMARK_TOKEN)) { $missing += 'postmarkServerToken (secret)' }
+          if ([string]::IsNullOrWhiteSpace($env:MAIL_FROM)) { $missing += 'NOTIFICATION_FROM (var)' }
+          if ([string]::IsNullOrWhiteSpace($env:MAIL_TO)) { $missing += 'NOTIFICATION_TO (var)' }
+          if ($missing.Count -gt 0) {
+              Write-Host "::warning::Postmark-notificatie niet geconfigureerd, ontbreekt: $($missing -join ', ') - overslaan."
               exit 0
           }
 
