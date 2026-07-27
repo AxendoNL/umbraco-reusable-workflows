@@ -39,13 +39,31 @@ Write-Host "=========================="
 git apply $PatchFile --3way --ignore-space-change --ignore-whitespace
 If ($LASTEXITCODE -ne 0) {
     # Real merge conflict (e.g. the same line changed on both sides since the
-    # baseline) - clean up the working tree and fail with diagnostics.
+    # baseline). Only the paths git left unmerged need attention - report those
+    # while the conflict state still exists, then clean up.
+    # Do not fall back to a plain 'git apply --check': without --3way the context
+    # of every file in the cumulative patch mismatches, so it flags all of them
+    # and hides which file actually conflicts.
+    $conflicted = @(git diff --name-only --diff-filter=U)
+    Write-Host ""
+    Write-Host "Patch cannot be applied - merge conflict in the file(s) below"
+    Write-Host "============================================================"
+    If ($conflicted.Count -gt 0) {
+        Write-Host "Conflicting files ($($conflicted.Count)):"
+        $conflicted | ForEach-Object { Write-Host " - $_" }
+        ForEach ($file in $conflicted) {
+            Write-Host ""
+            Write-Host "--- conflict in $file ---"
+            git diff -- $file
+        }
+        Write-Host ""
+        Write-Host "Resolve by hand: apply the cloud change from the git-patch artifact to the"
+        Write-Host "file(s) above on this branch, commit, then rerun the sync."
+    }
+    Else {
+        Write-Host "git reported no unmerged paths - see the apply output above."
+    }
     git reset --hard --quiet
-    Write-Host ""
-    Write-Host "Patch cannot be applied - please check the output below for the problematic parts"
-    Write-Host "================================================================================="
-    Write-Host ""
-    git apply -v --reject $PatchFile --ignore-space-change --ignore-whitespace --check
     Exit 1
 }
 
