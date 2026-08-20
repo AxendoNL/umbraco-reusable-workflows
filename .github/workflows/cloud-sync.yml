@@ -193,6 +193,7 @@ jobs:
           # NOTIFICATION_DEV_DOMAINS is gezet; adressen buiten die domeinen (en bots)
           # worden nooit aangeschreven.
           $devRecipients = @()
+          $unmappable = @()
           if (-not [string]::IsNullOrWhiteSpace($env:DEV_DOMAINS)) {
               $domains = $env:DEV_DOMAINS -split ',' | ForEach-Object { $_.Trim().TrimStart('@').ToLower() } | Where-Object { $_ }
               try {
@@ -214,8 +215,20 @@ jobs:
                   $commits = Invoke-RestMethod -Uri $uri -Headers $ghHeaders
                   $candidates = foreach ($c in $commits) {
                       $login = "$($c.author.login)".ToLower()
+                      $email = "$($c.commit.author.email)".ToLower()
                       if ($login -and $loginMap.ContainsKey($login)) { $loginMap[$login] }
-                      elseif ($c.commit.author.email) { $c.commit.author.email.ToLower() }
+                      elseif ($email) {
+                          # Menselijke committers met een noreply-adres zonder mapping zijn
+                          # onbereikbaar; verzamel ze zodat de mail dat kan melden.
+                          if ($email -match 'noreply' -and $email -notmatch 'github-actions|\[bot\]' -and "$($c.author.type)" -ne 'Bot') {
+                              $unmappable += "$($c.commit.author.name) - $email"
+                          }
+                          $email
+                      }
+                  }
+                  $unmappable = @($unmappable | Select-Object -Unique)
+                  if ($unmappable.Count -gt 0) {
+                      Write-Host "Niet te herleiden committers (noreply zonder mapping): $($unmappable -join '; ')"
                   }
                   $devRecipients = @($candidates |
                       Where-Object { $_ -notmatch 'github-actions|\[bot\]|noreply' } |
@@ -266,6 +279,14 @@ jobs:
               $audienceText = 'Je ontvangt deze mail omdat je volgens de commit-historie als laatst aan deze repository hebt gewerkt.'
           }
 
+          $unmappableHtml = ''
+          $unmappableText = ''
+          if ($unmappable.Count -gt 0) {
+              $items = ($unmappable | ForEach-Object { "<li>$_</li>" }) -join ''
+              $unmappableHtml = "<p><strong>Niet te herleiden committers</strong> (noreply-adres zonder mapping in NOTIFICATION_DEV_LOGIN_MAP):</p><ul>$items</ul>"
+              $unmappableText = "Niet te herleiden committers (noreply-adres zonder mapping in NOTIFICATION_DEV_LOGIN_MAP):`n" + (($unmappable | ForEach-Object { "  - $_" }) -join "`n")
+          }
+
           $subject = "[Umbraco Cloud Sync] MISLUKT - $($env:REPO) / $($env:TARGET)"
 
           $html = @"
@@ -279,6 +300,7 @@ jobs:
           </ul>
           <p>$reason</p>
           <p><a href="$($env:RUN_URL)">Bekijk de workflow-run &amp; logs</a></p>
+          $unmappableHtml
           $audienceHtml
           "@
 
@@ -292,6 +314,8 @@ jobs:
 
           $reason
           Run & logs: $($env:RUN_URL)
+
+          $unmappableText
 
           $audienceText
           "@
