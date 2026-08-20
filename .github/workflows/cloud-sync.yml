@@ -153,9 +153,22 @@ jobs:
           POSTMARK_TOKEN: ${{ secrets.postmarkServerToken }}
           # vars komen uit de caller repo/org: NOTIFICATION_FROM = geverifieerd Postmark
           # afzender-adres, NOTIFICATION_TO/CC = komma-gescheiden ontvangers.
+          # NOTIFICATION_DEV_DOMAINS (optioneel) = komma-gescheiden e-maildomeinen
+          # (bv. "axendo.nl"). Indien gezet gaat de mail naar de developer(s) die als
+          # laatst aan de repository committen met een adres binnen die domeinen, en
+          # schuiven NOTIFICATION_TO/CC door naar de CC. Niet gezet = huidig gedrag.
+          # NOTIFICATION_DEV_LOGIN_MAP (optioneel) = komma-gescheiden mapping van
+          # GitHub-login naar e-mailadres (bv. "frits-axendo=frits@axendo.nl,
+          # RaymondJansen=raymond.jansen@axendo.nl") voor developers die met een
+          # noreply-adres committen. De mapping gaat vóór het commit-e-mailadres.
           MAIL_FROM: ${{ vars.NOTIFICATION_FROM }}
           MAIL_TO: ${{ vars.NOTIFICATION_TO }}
           MAIL_CC: ${{ vars.NOTIFICATION_CC }}
+          DEV_DOMAINS: ${{ vars.NOTIFICATION_DEV_DOMAINS }}
+          DEV_LOGIN_MAP: ${{ vars.NOTIFICATION_DEV_LOGIN_MAP }}
+          GH_TOKEN: ${{ github.token }}
+          GIT_SHA: ${{ github.sha }}
+          API_URL: ${{ github.api_url }}
           TARGET: ${{ inputs.targetEnvironmentAlias }}
           DEPLOYMENT_ID: ${{ needs.preflight.outputs.latestDeploymentId }}
           RESULT_PREFLIGHT: ${{ needs.preflight.result }}
@@ -175,6 +188,61 @@ jobs:
               exit 0
           }
 
+          # Dynamische ontvangers: de developer(s) die als laatst aan de repository hebben
+          # gewerkt, bepaald via de commit-historie. Alleen actief wanneer
+          # NOTIFICATION_DEV_DOMAINS is gezet; adressen buiten die domeinen (en bots)
+          # worden nooit aangeschreven.
+          $devRecipients = @()
+          if (-not [string]::IsNullOrWhiteSpace($env:DEV_DOMAINS)) {
+              $domains = $env:DEV_DOMAINS -split ',' | ForEach-Object { $_.Trim().TrimStart('@').ToLower() } | Where-Object { $_ }
+              try {
+                  $ghHeaders = @{
+                      "Authorization" = "Bearer $($env:GH_TOKEN)"
+                      "Accept"        = "application/vnd.github+json"
+                  }
+                  # Login-naar-e-mail-mapping voor developers die met een GitHub-noreply-adres
+                  # committen; het commit-adres is dan onbruikbaar maar de login niet.
+                  $loginMap = @{}
+                  foreach ($pair in ($env:DEV_LOGIN_MAP -split ',')) {
+                      $parts = "$pair".Trim() -split '=', 2
+                      if ($parts.Count -eq 2 -and $parts[0].Trim() -and $parts[1].Trim()) {
+                          $loginMap[$parts[0].Trim().ToLower()] = $parts[1].Trim().ToLower()
+                      }
+                  }
+
+                  $uri = "$($env:API_URL)/repos/$($env:REPO)/commits?sha=$($env:GIT_SHA)&per_page=30"
+                  $commits = Invoke-RestMethod -Uri $uri -Headers $ghHeaders
+                  $candidates = foreach ($c in $commits) {
+                      $login = "$($c.author.login)".ToLower()
+                      if ($login -and $loginMap.ContainsKey($login)) { $loginMap[$login] }
+                      elseif ($c.commit.author.email) { $c.commit.author.email.ToLower() }
+                  }
+                  $devRecipients = @($candidates |
+                      Where-Object { $_ -notmatch 'github-actions|\[bot\]|noreply' } |
+                      Where-Object { $email = $_; @($domains | Where-Object { $email.EndsWith("@$_") }).Count -gt 0 } |
+                      Select-Object -Unique |
+                      Select-Object -First 3)
+              }
+              catch {
+                  Write-Host "::warning::Ophalen commit-historie voor dynamische ontvangers mislukt: $($_.Exception.Message) - terugvallen op NOTIFICATION_TO."
+              }
+          }
+
+          if ($devRecipients.Count -gt 0) {
+              # Developers in de To; NOTIFICATION_TO/CC schuiven door naar de CC.
+              $mailTo = $devRecipients -join ','
+              $mailCc = @(($env:MAIL_TO -split ','); ($env:MAIL_CC -split ',')) |
+                  ForEach-Object { "$_".Trim() } |
+                  Where-Object { $_ -and $devRecipients -notcontains $_.ToLower() } |
+                  Select-Object -Unique
+              $mailCc = $mailCc -join ','
+              Write-Host "Dynamische ontvangers uit commit-historie: $mailTo (cc: $mailCc)"
+          }
+          else {
+              $mailTo = $env:MAIL_TO
+              $mailCc = $env:MAIL_CC
+          }
+
           # Bepaal welke job faalde voor een passende omschrijving in de mail.
           if ($env:RESULT_APPLY -eq 'failure') {
               $failedJob = 'Apply remote changes'
@@ -191,6 +259,13 @@ jobs:
 
           $deployment = if ([string]::IsNullOrWhiteSpace($env:DEPLOYMENT_ID)) { 'onbekend' } else { $env:DEPLOYMENT_ID }
 
+          $audienceHtml = ''
+          $audienceText = ''
+          if ($devRecipients.Count -gt 0) {
+              $audienceHtml = '<p><em>Je ontvangt deze mail omdat je volgens de commit-historie als laatst aan deze repository hebt gewerkt.</em></p>'
+              $audienceText = 'Je ontvangt deze mail omdat je volgens de commit-historie als laatst aan deze repository hebt gewerkt.'
+          }
+
           $subject = "[Umbraco Cloud Sync] MISLUKT - $($env:REPO) / $($env:TARGET)"
 
           $html = @"
@@ -204,6 +279,7 @@ jobs:
           </ul>
           <p>$reason</p>
           <p><a href="$($env:RUN_URL)">Bekijk de workflow-run &amp; logs</a></p>
+          $audienceHtml
           "@
 
           $text = @"
@@ -216,17 +292,19 @@ jobs:
 
           $reason
           Run & logs: $($env:RUN_URL)
+
+          $audienceText
           "@
 
           $body = @{
               From          = $env:MAIL_FROM
-              To            = $env:MAIL_TO
+              To            = $mailTo
               Subject       = $subject
               HtmlBody      = $html
               TextBody      = $text
               MessageStream = "outbound"
           }
-          if (-not [string]::IsNullOrWhiteSpace($env:MAIL_CC)) { $body.Cc = $env:MAIL_CC }
+          if (-not [string]::IsNullOrWhiteSpace($mailCc)) { $body.Cc = $mailCc }
 
           $headers = @{
               "Accept"                  = "application/json"
