@@ -28,6 +28,11 @@ on:
       csproj-path:
         required: true
         type: string
+      website-name:
+        description: 'IIS website name to deploy to. Defaults to the WEBSITE_NAME repository variable.'
+        required: false
+        type: string
+        default: ''
       
 ### Some environment variables to ease use and keep oversight        
 env:
@@ -127,7 +132,7 @@ jobs:
 
 
   Deploy:
-    if: always() && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
+    if: always() && needs.Build-NET.result == 'success' && (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') && (needs.build-vue.result == 'success' || needs.build-vue.result == 'skipped')
     name: Deploy using WebDeploy
     needs: [Build-NET]
     runs-on: [self-hosted, axendo]
@@ -135,7 +140,7 @@ jobs:
       - name: Deploy to VPS
         uses: AxendoNL/web-deploy-action@main
         with:
-          website-name: ${{ vars.WEBSITE_NAME }}
+          website-name: ${{ inputs.website-name || vars.WEBSITE_NAME }}
           server-computer-name: ${{ vars.SERVER_COMPUTER_NAME }}
           server-username: ${{ secrets.SERVER_USERNAME }}
           server-password: ${{ secrets.SERVER_PASSWORD }}
