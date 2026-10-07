@@ -56,7 +56,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - name: Build frontend with Webpack
-        uses: AxendoNL/webpack-action@v1.2.0
+        uses: AxendoNL/webpack-action@v1.3.0
         with:
           directory: ${{ github.workspace }}\${{ inputs.frontend-directory }}
           output-folder: '${{ env.app-path }}\\wwwroot\\assets'
@@ -69,7 +69,7 @@ jobs:
     runs-on: [self-hosted, axendo]
     steps:
       - name: Build vue apps
-        uses: AxendoNL/webpack-action@v1.2.0
+        uses: AxendoNL/webpack-action@v1.3.0
         with:
           directory: ${{ github.workspace }}\${{ inputs.vue-directory }}
           output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'

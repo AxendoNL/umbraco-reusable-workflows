@@ -40,7 +40,7 @@ jobs:
           path: ./../artifact
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@v3.0.2
         with:
           app-name: ${{ inputs.app-name }}
           publish-profile: ${{ secrets.publish-profile }}

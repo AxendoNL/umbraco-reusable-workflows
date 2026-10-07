@@ -46,7 +46,7 @@ jobs:
         
     - name: Build Frontend
       if: inputs.frontend-directory && vars.SKIP_FRONTEND != 'true'
-      uses: AxendoNL/webpack-action@v1.2.0
+      uses: AxendoNL/webpack-action@v1.3.0
       with:
         directory: ${{ inputs.frontend-directory }}
         output-folder: '${{ env.app-path }}\\wwwroot\\assets'
@@ -54,7 +54,7 @@ jobs:
         
     - name: Build Vue apps
       if: inputs.vue-directory && vars.SKIP_VUE != 'true'
-      uses: AxendoNL/webpack-action@v1.2.0
+      uses: AxendoNL/webpack-action@v1.3.0
       with:
         directory: ${{ inputs.vue-directory }}
         output-folder: '${{ env.app-path }}\\wwwroot\\vue-apps'
